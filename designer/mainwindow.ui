@@ -139,7 +139,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usage Instructions, background and installation instructions are avaliable on &lt;a href=&quot;https://hopuk.sharepoint.com/:w:/r/sites/bct-ppu/_layouts/15/Doc.aspx?sourcedoc=%7B6B4ACE86-8B55-4742-A8EC-12BE078E67A2%7D&amp;amp;file=FawcettAppInstructions.docx&amp;amp;action=default&amp;amp;mobileredirect=true&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#419cff;&quot;&gt;SharePoint.&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;You can also view the source code on GitHub.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usage Instructions, background and installation instructions are avaliable on &lt;a href=&quot;https://hopuk.sharepoint.com/:w:/r/sites/bct-ppu/_layouts/15/Doc.aspx?sourcedoc=%7B6B4ACE86-8B55-4742-A8EC-12BE078E67A2%7D&amp;amp;file=FawcettAppInstructions.docx&amp;amp;action=default&amp;amp;mobileredirect=true&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#419cff;&quot;&gt;SharePoint.&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;You can also view the source code on &lt;a href=&quot;https://github.com/hoc-ppu/Fawcett&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#419cff;&quot;&gt;GitHub&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::RichText</enum>
