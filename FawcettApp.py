@@ -49,7 +49,7 @@ LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
 # Create logger
 #
 # create file handler which logs even debug messages
-fh = RotatingFileHandler(str(LOG_FILE_PATH), mode='a', maxBytes=1024*1024)
+fh = RotatingFileHandler(str(LOG_FILE_PATH), mode='a', maxBytes=1024 * 1024)
 fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
@@ -300,7 +300,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                     ordinary_written += 1
 
     # read the HTML template
-    html_template_file_Path = Path('FawcettApp_template_v4.html')
+    html_template_file_Path = Path('FawcettApp_template.html')
     print('Attempting to read: ', str(html_template_file_Path.absolute()))
     html_template = html.parse(str(html_template_file_Path.absolute()))
     html_root = html_template.getroot()
