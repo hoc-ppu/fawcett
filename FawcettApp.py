@@ -150,7 +150,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if platform.system() == 'Darwin':       # macOS
             os.system(f'open "{LOG_FILE_PATH}"')  # a bit hacky, use subprocess instead?
 
-        elif platform.system() == 'Darwin':     # Windows
+        elif platform.system() == 'Windows':    # Windows
             os.system(f'start " {str(LOG_FILE_PATH)}"')
 
 
