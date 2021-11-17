@@ -151,7 +151,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             os.system(f'open "{LOG_FILE_PATH}"')  # a bit hacky, use subprocess instead?
 
         elif platform.system() == 'Windows':    # Windows
-            os.system(f'start " {str(LOG_FILE_PATH)}"')
+            # os.system(f'start " {str(LOG_FILE_PATH)}"')
+            # os.startfile(str(LOG_FILE_PATH))
+            webbrowser.open(str(LOG_FILE_PATH))
 
 
 
