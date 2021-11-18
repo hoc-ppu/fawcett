@@ -69,7 +69,7 @@ def cmd_warning(msg: str):
     logger.warning(msg)
 
 def cmd_error(msg: str):
-    logger.warning(msg)
+    logger.error(msg)
 
 
 warning = cmd_warning
@@ -161,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 def run(chosen_date: date):
 
     if not isinstance(chosen_date, date):
-        print(f'{chosen_date}  seems  not to be a valid date. Please try again.')
+        logger.warning(f'{chosen_date}  seems  not to be a valid date. Please try again.')
         return
 
     eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime('%Y-%m-%d'))
@@ -302,12 +302,25 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                     ordinary_written += 1
 
     # read the HTML template
-    html_template_file_Path = Path('FawcettApp_template.html')
-    print('Attempting to read: ', str(html_template_file_Path.absolute()))
-    html_template = html.parse(str(html_template_file_Path.absolute()))
+    try:
+        html_template_file_Path = Path(__file__, 'FawcettApp_template.html').resolve(strict=True)
+    except Exception:
+        error('An HTML template file must be present in the same folder as this program.\n'
+              'Specifically, the following file must be present:\n'
+              f"{Path(__file__, 'FawcettApp_template.html').resolve(strict=False)}")
+        return
+
+    logger.info('Attempting to read: ', str(html_template_file_Path))
+    try:
+        html_template = html.parse(str(html_template_file_Path))
+    except Exception as e:
+        error('An error occurred while trying to read the following file\n'
+              + str(html_template_file_Path)
+              + f'\n{e}\nCan not continue')
+        return
     html_root = html_template.getroot()
 
-    # get the questions dix
+    # get the questions div
     questions_div = html_root.find('body//div[@class="questions"]')
     if not iselement(questions_div):
         error('The template HTML file is missing the following required element:\n'
@@ -346,8 +359,8 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
         if iselement(html_element):
             html_element.text = str(total)
         else:
-            print(f'{xpath} not found')
-            print(html_element)
+            logger.warning(f'{xpath} not found')
+            logger.warning(html_element)
 
 
     # create new tempfile
