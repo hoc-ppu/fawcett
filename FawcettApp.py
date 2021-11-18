@@ -108,7 +108,7 @@ def main():
 
         def gui_error(msg: str):
             cmd_error(msg)
-            QtWidgets.QMessageBox.critical(window, 'Warning', msg)
+            QtWidgets.QMessageBox.critical(window, 'Error', msg)
 
         # redefine global function
         global warning
@@ -127,10 +127,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
-        # set the icon in the taskbar etc.
-        path_to_icon = (Path.cwd() / __file__).parent.absolute() / 'icons' / 'Icon.ico'
-        logger.info(path_to_icon)
-        self.setWindowIcon(QtGui.QIcon(str(path_to_icon)))
+        # set the icon in the Windows taskbar
+        if hasattr(sys, '_MEIPASS'):  # if we are using the bundled app
+
+            # when creating the bundled app use --add-data=.\icons\Icon.ico;.
+            # the above assumes we have an Icon.ico file in an icons folder
+            # logger.info(sys._MEIPASS)
+
+            if platform.system() == 'Windows':
+                path_to_icon = Path(sys._MEIPASS) / 'Icon.ico'
+                self.setWindowIcon(QtGui.QIcon(str(path_to_icon)))
 
         # set the dates to today
         self.dateEdit.setDate(QtCore.QDate.currentDate())
@@ -306,12 +312,13 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                     ordinary_written += 1
 
     # read the HTML template
+    html_template_file_Path = Path(__file__).with_name('FawcettApp_template.html')
     try:
-        html_template_file_Path = Path(__file__).with_name('FawcettApp_template.html').resolve(strict=True).absolute()
+        html_template_file_Path = html_template_file_Path.absolute().resolve(strict=True)
     except Exception:
         error('An HTML template file must be present in the same folder as this program.\n'
               'Specifically, the following file must be present:\n'
-              f"{Path(__file__, 'FawcettApp_template.html').resolve(strict=False)}")
+              f"{html_template_file_Path.absolute().resolve(strict=False)}")
         return
 
     logger.info(f'Attempting to read: {html_template_file_Path}')
