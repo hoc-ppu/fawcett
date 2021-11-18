@@ -127,6 +127,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
+        # set the icon in the taskbar etc.
+        path_to_icon = (Path.cwd() / __file__).parent.absolute() / 'icons' / 'Icon.ico'
+        self.setWindowIcon(QtGui.QIcon(str(path_to_icon)))
 
         # set the dates to today
         self.dateEdit.setDate(QtCore.QDate.currentDate())
