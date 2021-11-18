@@ -108,7 +108,7 @@ def main():
 
         def gui_error(msg: str):
             cmd_error(msg)
-            QtWidgets.QMessageBox.error(window, 'Warning', msg)
+            QtWidgets.QMessageBox.critical(window, 'Warning', msg)
 
         # redefine global function
         global warning
