@@ -303,7 +303,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
     # read the HTML template
     try:
-        html_template_file_Path = Path(__file__, 'FawcettApp_template.html').resolve(strict=True).absolute()
+        html_template_file_Path = Path(__file__).with_name('FawcettApp_template.html').resolve(strict=True).absolute()
     except Exception:
         error('An HTML template file must be present in the same folder as this program.\n'
               'Specifically, the following file must be present:\n'
