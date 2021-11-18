@@ -310,7 +310,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
               f"{Path(__file__, 'FawcettApp_template.html').resolve(strict=False)}")
         return
 
-    logger.info('Attempting to read: ', str(html_template_file_Path))
+    logger.info(f'Attempting to read: {html_template_file_Path}')
     try:
         html_template = html.parse(str(html_template_file_Path))
     except Exception as e:
@@ -360,7 +360,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
             html_element.text = str(total)
         else:
             logger.warning(f'{xpath} not found')
-            logger.warning(html_element)
+            logger.warning(str(html_element))
 
 
     # create new tempfile
