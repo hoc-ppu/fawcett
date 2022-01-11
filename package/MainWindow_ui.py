@@ -90,7 +90,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Fawcett App"))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:24pt; font-weight:600; color:#79b656;\">Fawcett App </span><span style=\" font-size:14pt; font-weight:600; color:#79b656;\">(v5)</span></p></body></html>"))
+        self.label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:24pt; font-weight:600; color:#79b656;\">Fawcett App </span><span style=\" font-size:14pt; font-weight:600; color:#79b656;\">(v5.1)</span></p></body></html>"))
         self.intro_text.setText(_translate("MainWindow", "<html><head/><body><p>Create a quick proof of the \'Questions Tabled On\' document. First select the tableing date for the questions then press \'Create Quick Proof\'. This program will query the <a href=\"https://api.eqm.parliament.uk/\"><span style=\" text-decoration: underline; color:#419cff;\">EQM API</span></a> for the relevant questions and arrange them for you in a web browser. </p></body></html>"))
         self.date_label.setText(_translate("MainWindow", "Select tableing date"))
         self.create_proof_btn.setText(_translate("MainWindow", "Create Quick Proof"))
