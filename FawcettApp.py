@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = '5.0.0'
+__version__ = '5.1.0'
 
 import argparse
 from datetime import datetime, date
@@ -27,7 +27,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui  # noqa: F401
 from lxml import html
 from lxml.html.builder import H3, H4, CLASS, P, SPAN, STRONG
-from lxml.etree import _Element, iselement
+from lxml.etree import _Element, Element, iselement
 # from lxml.etree import Element
 
 from package.MainWindow_ui import Ui_MainWindow
@@ -135,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # logger.info(sys._MEIPASS)
 
             if platform.system() == 'Windows':
-                path_to_icon = Path(sys._MEIPASS) / 'Icon.ico'
+                path_to_icon = Path(sys._MEIPASS) / 'Icon.ico'  # type: ignore
                 self.setWindowIcon(QtGui.QIcon(str(path_to_icon)))
 
         # set the dates to today
@@ -174,7 +174,11 @@ def run(chosen_date: date):
         logger.warning(f'{chosen_date}  seems  not to be a valid date. Please try again.')
         return
 
-    eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime('%Y-%m-%d'))
+
+    # testing
+    with open('test-2021-11-25.json', 'r') as f:
+        eqm_data = json.load(f)
+    # eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime('%Y-%m-%d'))
     if not eqm_data:
         return
 
@@ -204,14 +208,16 @@ def json_from_uri(uri: str, showerror=True) -> Optional[Any]:
 def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
     # list to be populated with answering bodies from MNIS
-    answers_list = []
+    answers_dict: dict[str, str] = {}
 
     # put mnis data in array
     if mnis_data:
         answering_bodies = mnis_data.get('AnsweringBodies', {}).get('AnsweringBody', [])
         # build up a list of answering bodies
         for answering_body in answering_bodies:
-            answers_list.append(answering_body.get('Target'))
+            ab_name = answering_body.get('Name')
+            target = answering_body.get('Target')
+            answers_dict[ab_name] = target
 
     # variables for totals info
     ordinary_written: int  = 0
@@ -238,7 +244,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
                 question_html_elements.append(h3)
 
-            question_html_elements.append(H4(question_block.get('Description')))
+            question_html_elements.append(H4(question_block.get('Description', '')))
 
             # loop through each question
             questions = question_block.get('Questions', [])
@@ -262,6 +268,10 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                 uinText          = question.get('UIN')
                 transferred      = question.get('IsTransfer')
                 hasInterest      = question.get('DeclaredInterest')
+                answering_body   = question.get('AnsweringBody', '')
+
+
+
 
                 if transferred:
                     transferred = '[Transferred] '
@@ -282,20 +292,27 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                                        f'{memberText} '),
                                    SPAN(
                                        CLASS('memberConstituency'),
-                                       f'({constituencyText}): '),
-                                   SPAN(
-                                       CLASS('questionText')),
-                                   SPAN(
-                                       CLASS('uin'),
-                                       f'{hasInterest}{transferred}({uinText})'))
+                                       f'({constituencyText}): ')
+                                  )
 
+                qn_text_ele =  SPAN( CLASS('questionText'))
+                # qn_text_ele.set('spellcheck', 'true')
+                # qn_text_ele.set('contenteditable', '')
+                qn_text_ele.text = qnText
 
                 if question_type != 'TOPICAL' or j == 0:
-                    old_questionText_span = questions_item.find('.//span[@class="questionText"]')
-                    if iselement(old_questionText_span):
-                        questionText_span = addYellowHighlight(qnText, question_type, answers_list)
-                        questions_item.replace(old_questionText_span, questionText_span)
-                        # old_questionText_span.text = qnText
+
+                    addHighlights(qn_text_ele, answering_body, question_type, answers_dict)
+                    # questionText_span = addYellowHighlight(qnText, question_type, answers_dict)
+                    # questions_item.replace(old_questionText_span, questionText_span)
+                    # old_questionText_span.text = qnText
+
+                uin_ele = SPAN( CLASS('uin'),
+                                f'{hasInterest}{transferred}({uinText})')
+
+                questions_item.extend([qn_text_ele, uin_ele])
+
+
 
 
                 # append the created question
@@ -393,8 +410,12 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                 'but could not be opened automatically.')
 
 
-def addYellowHighlight(qn_text: str, question_type, answersList) -> _Element:
-    # HIGHLIGHT
+def addHighlights(qn_ele: _Element,
+                  q_answering_body: str,
+                  question_type: str,
+                  answers_dict: dict[str, str]) -> None:
+
+    # HIGHLIGHT IN YELLOW
     # 1. any repetitions of the initial text of the question marked up e.g.
     # ‘To ask The Chancellor of the Exchequer, To ask The Chancellor of the Exchequer’
     # 2. any instances where the initial word after the first comma is upper cased
@@ -404,50 +425,109 @@ def addYellowHighlight(qn_text: str, question_type, answersList) -> _Element:
     # 4. any absences of the initial comma marked up e.g.
     # ‘To ask The Chancellor of the Exchequer how many’
 
-    questionHasStart = False
-    markerAdded = False
+    # HIGHLIGHT IN PINK
+    # where To ask The... does not match the answering body
+
+    # sometimes the answering_body does not match the to ask the text
+    # here is what paul had to say about it:
+    # - occasionally we change the department a question is directed to but forget to change the title in the question or vice versa
+    # The heading does not show up in the app but I wonder whether the intro ‘To ask the ….’ could get highlighted (in a different colour to yellow) if it does not correspond with the department it has been allocated to.
+
+    if not qn_ele.text:
+        # we   wont do anything if there is no text
+        return
+
+    qn_text = qn_ele.text
+    # delete the text
+    qn_ele.text = ''
 
     # This will only work on written questions
-    if question_type == 'NAMEDDAY' or question_type == 'ORDINARY':
+    if question_type != 'NAMEDDAY' and question_type != 'ORDINARY':
+        return
 
-        for answering_body in answersList:
+    '<span class="marker" data-toggle="tooltip" title="More than one space">&#160;&#160;</span>'
 
-            # Regular expression to find the 'To ask the...' part of a question
-            pattern = answering_body + ','
-            reQnStart = re.findall(pattern, qn_text)
+    marker_tamplate = '<span class="marker">{text}</span>'
+    marker_with_pop_template = '<span class="marker" data-toggle="tooltip" title="{tool_tip_title}">{text}</span>'
+    pink_maker_template = '<span class="marker-pink" data-toggle="tooltip" title="{tool_tip_title}">{text}</span>'
 
-            if len(reQnStart) == 1:
-                questionHasStart = True
-                # Test for capital after initial part of question.
-                # e.g. ‘To ask The Chancellor of the Exchequer, How many’
-                pattern = answering_body + '(, [A-Z])'
+    strings = []
 
-                if re.search(pattern, qn_text):
+    # pink heighlight first
+    expected_target = answers_dict.get(q_answering_body, '')
+    to_ask = f'To ask {expected_target}'
+    if expected_target and qn_text.startswith(to_ask):
+        strings.append(to_ask)
 
-                    # add yellows
-                    qn_text = re.sub(pattern, r'<span class="marker">$1</span>', qn_text)
-                    markerAdded = True
+        # remove this now
+        qn_text = re.sub(f'^{to_ask}', '', qn_text)
+    else:
+        # not proper so we'll highlight in pink
+        # search for the (wrong) target used
+        for target in answers_dict.values():
+            to_ask = f'To ask {target}'
+            if qn_text.startswith(to_ask):
+                qn_text = re.sub(f'^{to_ask}', '', qn_text)
+
+                pink_marker = pink_maker_template.format(
+                    tool_tip_title=f'Expected {expected_target}',
+                    text=to_ask)
+
+                strings.append(pink_marker)
+
                 break
+        else:  # loop exited normally i.e. didn't break
+            # we need to add something here as the question doesn't
+            # start with a target
+            pass
 
-        # if the question doesn't start properly
-        # (so long as we could determin how questions should start from MNIS)
-        if not questionHasStart and len(answersList) > 0:
-            qn_text = '<span class="marker">' + qn_text + '</span>'
-            markerAdded = True
+    if qn_text:  # if there is any left
 
-    # Highlight and questions that do not end in a full stop
-    # first make sure question is not already highlighted
-    if not markerAdded:
-        if qn_text[-1] != '.':
-            qn_text = qn_text[:-1] + '<span class="marker">' + qn_text[-1] + '</span>'
+        # match_obj = re.search(r'^, ?[A-Z0-9]', qn_text)
+        match_obj = re.search(r'^,', qn_text)
+        if not match_obj:
+            first_char = qn_text[0]
+            qn_text = qn_text[1:]
 
-    # replace suggested redraft in the qn_text.
-    qn_text = qn_text.replace('suggested redraft', '<span class="marker">SUGGESTED REDRAFT</span>')
+            yellow_marker = marker_with_pop_template.format(
+                tool_tip_title='Expected comma',
+                text=first_char)
 
-    html_element = html.fromstring(
-        f'<span class="questionText">{qn_text}</span>'
+            strings.append(yellow_marker)
+
+    if qn_text:
+        # now do several replaces.
+        # pattern = re.compile( )
+        srf = 'suggested redraft'
+        spaces = r'\s\s+'
+        splits = re.split(f'({srf}|{spaces})', qn_text, re.IGNORECASE)
+
+        for string in splits:
+            if re.fullmatch(srf, string, re.IGNORECASE):
+                marker = marker_tamplate.format(text=string.upper())
+                strings.append(marker)
+            elif re.fullmatch(spaces, string):
+                marker = marker_with_pop_template.format(text='&nbsp;&nbsp;', tool_tip_title='More than one space')
+                strings.append(marker)
+            else:
+                strings.append(string)
+
+    # join the strings
+    q_inner = ''.join(strings)
+
+    if q_inner[-1] != '.':
+        marker = marker_with_pop_template.format(text=q_inner[-1], tool_tip_title='Expected full stop')
+        q_inner = q_inner[:-1] + marker
+
+    temp_element = html.fromstring(
+        f'<span class="temporary">{q_inner}</span>'
     )
-    return html_element
+
+    qn_ele.append(temp_element)
+    # print(html.tostring(qn_ele))
+    temp_element.drop_tag()
+
+
 
 
 if __name__ == "__main__":
