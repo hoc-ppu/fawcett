@@ -176,9 +176,9 @@ def run(chosen_date: date):
 
 
     # testing
-    with open('test-2021-11-25.json', 'r') as f:
-        eqm_data = json.load(f)
-    # eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime('%Y-%m-%d'))
+    # with open('test-2021-11-25.json', 'r') as f:
+    #     eqm_data = json.load(f)
+    eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime('%Y-%m-%d'))
     if not eqm_data:
         return
 
