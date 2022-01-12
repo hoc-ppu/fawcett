@@ -32,6 +32,7 @@ from lxml.etree import _Element, Element, iselement
 
 from package.MainWindow_ui import Ui_MainWindow
 
+# print(sys.version)
 
 # default ssl context
 CONTEXT = ssl.create_default_context()
@@ -330,6 +331,9 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
     # read the HTML template
     html_template_file_Path = Path(__file__).with_name('FawcettApp_template.html')
+    if hasattr(sys, 'executable') and hasattr(sys, '_MEIPASS'):
+        # only here if using the bundled version
+        html_template_file_Path = Path(sys.executable).with_name('FawcettApp_template.html')``
     try:
         html_template_file_Path = html_template_file_Path.absolute().resolve(strict=True)
     except Exception:
