@@ -3,6 +3,7 @@
 __version__ = '5.1.0'
 
 import argparse
+from copy import deepcopy
 from datetime import datetime, date
 import json
 from json import JSONDecodeError
@@ -303,10 +304,16 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
                 if question_type != 'TOPICAL' or j == 0:
 
-                    addHighlights(qn_text_ele, answering_body, question_type, answers_dict)
-                    # questionText_span = addYellowHighlight(qnText, question_type, answers_dict)
-                    # questions_item.replace(old_questionText_span, questionText_span)
-                    # old_questionText_span.text = qnText
+                    qn_text_ele_copy = deepcopy(qn_text_ele)
+
+                    try:
+                        addHighlights(qn_text_ele, answering_body, question_type, answers_dict)
+                        # questionText_span = addYellowHighlight(qnText, question_type, answers_dict)
+                        # questions_item.replace(old_questionText_span, questionText_span)
+                        # old_questionText_span.text = qnText
+                    except Exception as e:
+                        qn_text_ele = qn_text_ele_copy
+                        error(e)
 
                 uin_ele = SPAN( CLASS('uin'),
                                 f'{hasInterest}{transferred}({uinText})')
@@ -333,7 +340,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
     html_template_file_Path = Path(__file__).with_name('FawcettApp_template.html')
     if hasattr(sys, 'executable') and hasattr(sys, '_MEIPASS'):
         # only here if using the bundled version
-        html_template_file_Path = Path(sys.executable).with_name('FawcettApp_template.html')``
+        html_template_file_Path = Path(sys.executable).with_name('FawcettApp_template.html')
     try:
         html_template_file_Path = html_template_file_Path.absolute().resolve(strict=True)
     except Exception:
@@ -457,6 +464,8 @@ def addHighlights(qn_ele: _Element,
 
     strings = []
 
+    target_not_found = False
+
     # pink heighlight first
     expected_target = answers_dict.get(q_answering_body, '')
     to_ask = f'To ask {expected_target}'
@@ -483,13 +492,25 @@ def addHighlights(qn_ele: _Element,
         else:  # loop exited normally i.e. didn't break
             # we need to add something here as the question doesn't
             # start with a target
-            pass
+            target_not_found = True
+            if len(qn_text) > 6:
+                first_chars = qn_text[0:6]
+                qn_text = qn_text[6:]
+            else:
+                first_chars = qn_text[0]
+                qn_text = qn_text[1:]
+            pink_marker = pink_maker_template.format(
+                tool_tip_title=f'Expected {expected_target}',
+                text=first_chars)
 
-    if qn_text:  # if there is any left
+            strings.append(pink_marker)
+
+
+    if qn_text:  # if there is any qn txt left
 
         # match_obj = re.search(r'^, ?[A-Z0-9]', qn_text)
         match_obj = re.search(r'^,', qn_text)
-        if not match_obj:
+        if not match_obj and not target_not_found:
             first_char = qn_text[0]
             qn_text = qn_text[1:]
 
