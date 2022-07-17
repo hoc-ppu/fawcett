@@ -313,7 +313,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                         # old_questionText_span.text = qnText
                     except Exception as e:
                         qn_text_ele = qn_text_ele_copy
-                        error(e)
+                        error(str(e))
 
                 uin_ele = SPAN( CLASS('uin'),
                                 f'{hasInterest}{transferred}({uinText})')
