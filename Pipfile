@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pyqt5 = "*"
-lxml = "*"
+lxml = ">=4.9.1"
 
 [dev-packages]
 pyinstaller = "*"
