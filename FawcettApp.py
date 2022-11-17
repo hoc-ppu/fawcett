@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = '5.1.0'
+__version__ = '5.2.0'
 
 import argparse
 from copy import deepcopy
@@ -10,6 +10,8 @@ from json import JSONDecodeError
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+from os import system as os_system
+from os import name as OS_NAME
 from pathlib import Path
 import platform
 import re
@@ -19,6 +21,7 @@ import sys
 # import subprocess
 from tempfile import mkstemp
 from typing import Optional, Any
+from threading import Thread
 import urllib.request
 from urllib.error import HTTPError, URLError
 import webbrowser
@@ -76,6 +79,19 @@ def cmd_error(msg: str):
 
 warning = cmd_warning
 error = cmd_error
+
+
+class StartWordInBackground(Thread):
+    def __init__(self, path_to_word_file):
+        self.path_to_word_file = path_to_word_file
+        super().__init__()
+
+    def run(self):
+        # fist try opening a copy of the word file using the winword.exe
+        # assume winword is in default location
+        winword = r'"C:\Program Files (x86)\Microsoft Office\root\Office16\winword.exe"'
+        option = ' /f '  # supposed to tell word to open a copy
+        os_system(winword + option + self.path_to_word_file)
 
 
 def main():
@@ -146,8 +162,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # create button
         self.create_proof_btn.clicked.connect(self.run_script)
 
+        # create word button
+        self.create_proof_word_btn.clicked.connect(self.run_word_script)
+
         # log button
         self.logBtn.clicked.connect(self.open_log)
+    
+
+    def run_word_script(self):
+        _date = self.dateEdit.date().toPyDate()
+
+        run(_date, word=True)
 
 
     def run_script(self):
@@ -170,7 +195,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
-def run(chosen_date: date):
+def run(chosen_date: date, word=False):
+
+    logger.info(f'{word=}')
 
     if not isinstance(chosen_date, date):
         logger.warning(f'{chosen_date}  seems  not to be a valid date. Please try again.')
@@ -188,7 +215,58 @@ def run(chosen_date: date):
     if not mnis_data:
         return
 
-    buildUpHTML(eqm_data, mnis_data, chosen_date)
+    html_template = buildUpHTML(eqm_data, mnis_data, chosen_date)
+
+    if word is False:
+        suffix='.html'
+    else:
+        suffix='.doc'
+
+    # create new tempfile
+    tempfile, tempfilepath = mkstemp(suffix=suffix, prefix='QsTabled')
+
+    # output html to tempfile
+    with open(tempfile, 'wb') as file:
+        html_template.write(file, encoding='UTF-8', method="html", doctype='<!DOCTYPE html>')
+
+    logger.info(f'Created: {tempfilepath}')
+
+    if word is False:
+        # try to open in a web browser
+        try:
+            if os.name == 'posix':
+                webbrowser.open('file://' + tempfilepath)
+            else:
+                webbrowser.open(tempfilepath)
+        except Exception:
+            warning(f'The following HTML file was created:\n{tempfilepath}\n'
+                    'but could not be opened automatically.')
+    else:
+        # output an HTML file but pretend it's a word file
+
+        logger.info('Trying to open in Word...')
+        open_Word(tempfilepath)
+        logger.info('Opened Word')
+
+
+
+def open_Word(filepath):
+    """
+    Attempts to open filepath in Microsoft Word in the background
+    """
+    # print(str(filepath))
+    if OS_NAME == 'nt':
+        # windows system
+        try:
+            thread = StartWordInBackground(filepath)
+            thread.daemon = True
+            thread.start()
+        except Exception:
+            # if there is any problem with the above just do a gineric `start` and hope for the best
+            os_system("start " + filepath)
+    else:
+        # not a windows system
+        os_system("open " + filepath)  # `open` works on macOS, not sure about Linux
 
 
 
@@ -288,7 +366,7 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                 questions_item = P(CLASS('questionContainer'),
                                    SPAN(
                                        CLASS('questionNumber'),
-                                       f'{topical}{qn_number}{name_day}'),
+                                       f'{topical}{qn_number}{name_day} '),  # space at end for word version
                                    STRONG(
                                        CLASS('memberName'),
                                        f'{memberText} '),
@@ -402,23 +480,8 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
             logger.warning(str(html_element))
 
 
-    # create new tempfile
-    tempfile, tempfilepath = mkstemp(suffix='.html', prefix='QsTabled')
+    return html_template
 
-    # output html to tempfile
-    with open(tempfile, 'wb') as file:
-        html_template.write(file, encoding='UTF-8', method="html", doctype='<!DOCTYPE html>')
-
-    logger.info(f'Created: {tempfilepath}')
-    # try to open in a web browser
-    try:
-        if os.name == 'posix':
-            webbrowser.open('file://' + tempfilepath)
-        else:
-            webbrowser.open(tempfilepath)
-    except Exception:
-        warning('The following HTML file was created:\n{tempfilepath}\n'
-                'but could not be opened automatically.')
 
 
 def addHighlights(qn_ele: _Element,
