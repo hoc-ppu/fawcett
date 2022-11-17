@@ -31,7 +31,9 @@ from lxml.html.builder import H3, H4, CLASS, P, SPAN, STRONG
 from lxml.etree import _Element, Element, iselement
 # from lxml.etree import Element
 
-from package.MainWindow_ui import Ui_MainWindow
+from package.MainWindow_ui_v6 import Ui_MainWindow
+
+from logic.order_paper.order_paper import order_paper
 
 # print(sys.version)
 
@@ -57,7 +59,8 @@ fh.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.WARNING)
 # create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 # add the handlers to the logger
@@ -67,8 +70,11 @@ logger.addHandler(ch)
 #
 # warning and error functions. These are redefined later if using GUI.
 #
+
+
 def cmd_warning(msg: str):
     logger.warning(msg)
+
 
 def cmd_error(msg: str):
     logger.error(msg)
@@ -118,13 +124,13 @@ def main():
         global error
         error = gui_error
 
-
         window.show()
 
         app.exec_()
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
@@ -142,13 +148,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # set the dates to today
         self.dateEdit.setDate(QtCore.QDate.currentDate())
+        self.dateEdit_OP.setDate(QtCore.QDate.currentDate())
 
-        # create button
+        # create buttons
         self.create_proof_btn.clicked.connect(self.run_script)
+        self.create_proof_btn_OP.clicked.connect(self.run_script_op)
 
         # log button
         self.logBtn.clicked.connect(self.open_log)
 
+    def run_script_op(self):
+
+        _date = self.dateEdit_OP.date().toPyDate()
+        _shopping_list = []
+
+        if (self.checkBox_1_OP.isChecked()):
+            _shopping_list.append('effectives')
+
+        if (self.checkBox_2_OP.isChecked()):
+            _shopping_list.append('announcements')
+
+        if (self.checkBox_3_OP.isChecked()):
+            _shopping_list.append('futurea')
+
+        order_paper(str(_date), _shopping_list)
 
     def run_script(self):
 
@@ -160,7 +183,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def open_log(self):
         if platform.system() == 'Darwin':       # macOS
-            os.system(f'open "{LOG_FILE_PATH}"')  # a bit hacky, use subprocess instead?
+            # a bit hacky, use subprocess instead?
+            os.system(f'open "{LOG_FILE_PATH}"')
 
         elif platform.system() == 'Windows':    # Windows
             # os.system(f'start " {str(LOG_FILE_PATH)}"')
@@ -168,14 +192,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             webbrowser.open(str(LOG_FILE_PATH))
 
 
-
-
 def run(chosen_date: date):
 
     if not isinstance(chosen_date, date):
-        logger.warning(f'{chosen_date}  seems  not to be a valid date. Please try again.')
+        logger.warning(
+            f'{chosen_date}  seems  not to be a valid date. Please try again.')
         return
-
 
     # testing
     # with open('test-2021-11-25.json', 'r') as f:
@@ -189,7 +211,6 @@ def run(chosen_date: date):
         return
 
     buildUpHTML(eqm_data, mnis_data, chosen_date)
-
 
 
 def json_from_uri(uri: str, showerror=True) -> Optional[Any]:
@@ -214,7 +235,8 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
     # put mnis data in array
     if mnis_data:
-        answering_bodies = mnis_data.get('AnsweringBodies', {}).get('AnsweringBody', [])
+        answering_bodies = mnis_data.get(
+            'AnsweringBodies', {}).get('AnsweringBody', [])
         # build up a list of answering bodies
         for answering_body in answering_bodies:
             ab_name = answering_body.get('Name')
@@ -222,13 +244,12 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
             answers_dict[ab_name] = target
 
     # variables for totals info
-    ordinary_written: int  = 0
-    name_day_written: int  = 0
+    ordinary_written: int = 0
+    name_day_written: int = 0
     topical_questions: int = 0
-    substantive_Qs: int    = 0
+    substantive_Qs: int = 0
 
     dateText = ''
-
 
     question_html_elements: list[_Element] = []
 
@@ -246,7 +267,8 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
 
                 question_html_elements.append(h3)
 
-            question_html_elements.append(H4(question_block.get('Description', '')))
+            question_html_elements.append(
+                H4(question_block.get('Description', '')))
 
             # loop through each question
             questions = question_block.get('Questions', [])
@@ -262,18 +284,14 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                 elif question_type == 'NAMEDDAY':
                     name_day = ' N'
 
-
                 # variables for question data
-                memberText       = question.get('Member')
+                memberText = question.get('Member')
                 constituencyText = question.get('Constituency')
-                qnText           = question.get('Text')
-                uinText          = question.get('UIN')
-                transferred      = question.get('IsTransfer')
-                hasInterest      = question.get('DeclaredInterest')
-                answering_body   = question.get('AnsweringBody', '')
-
-
-
+                qnText = question.get('Text')
+                uinText = question.get('UIN')
+                transferred = question.get('IsTransfer')
+                hasInterest = question.get('DeclaredInterest')
+                answering_body = question.get('AnsweringBody', '')
 
                 if transferred:
                     transferred = '[Transferred] '
@@ -295,9 +313,9 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                                    SPAN(
                                        CLASS('memberConstituency'),
                                        f'({constituencyText}): ')
-                                  )
+                                   )
 
-                qn_text_ele =  SPAN( CLASS('questionText'))
+                qn_text_ele = SPAN(CLASS('questionText'))
                 # qn_text_ele.set('spellcheck', 'true')
                 # qn_text_ele.set('contenteditable', '')
                 qn_text_ele.text = qnText
@@ -307,7 +325,8 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                     qn_text_ele_copy = deepcopy(qn_text_ele)
 
                     try:
-                        addHighlights(qn_text_ele, answering_body, question_type, answers_dict)
+                        addHighlights(qn_text_ele, answering_body,
+                                      question_type, answers_dict)
                         # questionText_span = addYellowHighlight(qnText, question_type, answers_dict)
                         # questions_item.replace(old_questionText_span, questionText_span)
                         # old_questionText_span.text = qnText
@@ -315,13 +334,10 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                         qn_text_ele = qn_text_ele_copy
                         error(str(e))
 
-                uin_ele = SPAN( CLASS('uin'),
-                                f'{hasInterest}{transferred}({uinText})')
+                uin_ele = SPAN(CLASS('uin'),
+                               f'{hasInterest}{transferred}({uinText})')
 
                 questions_item.extend([qn_text_ele, uin_ele])
-
-
-
 
                 # append the created question
                 question_html_elements.append(questions_item)
@@ -337,10 +353,12 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
                     ordinary_written += 1
 
     # read the HTML template
-    html_template_file_Path = Path(__file__).with_name('FawcettApp_template.html')
+    html_template_file_Path = Path(
+        __file__).with_name('FawcettApp_template.html')
     if hasattr(sys, 'executable') and hasattr(sys, '_MEIPASS'):
         # only here if using the bundled version
-        html_template_file_Path = Path(sys.executable).with_name('FawcettApp_template.html')
+        html_template_file_Path = Path(
+            sys.executable).with_name('FawcettApp_template.html')
     try:
         html_template_file_Path = html_template_file_Path.absolute().resolve(strict=True)
     except Exception:
@@ -379,8 +397,6 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
     if iselement(h1):
         h1.text = f'Questions tabled on {chosen_date.strftime("%A %d %B %Y")}'
 
-
-
     # tuples of xpath to element and total to be inserted into element
     pairs: list[tuple[str, int]] = [
         ('.//*[@id="ordinary"]', ordinary_written),
@@ -401,13 +417,13 @@ def buildUpHTML(eqm_data, mnis_data, chosen_date: date):
             logger.warning(f'{xpath} not found')
             logger.warning(str(html_element))
 
-
     # create new tempfile
     tempfile, tempfilepath = mkstemp(suffix='.html', prefix='QsTabled')
 
     # output html to tempfile
     with open(tempfile, 'wb') as file:
-        html_template.write(file, encoding='UTF-8', method="html", doctype='<!DOCTYPE html>')
+        html_template.write(file, encoding='UTF-8',
+                            method="html", doctype='<!DOCTYPE html>')
 
     logger.info(f'Created: {tempfilepath}')
     # try to open in a web browser
@@ -505,7 +521,6 @@ def addHighlights(qn_ele: _Element,
 
             strings.append(pink_marker)
 
-
     if qn_text:  # if there is any qn txt left
 
         # match_obj = re.search(r'^, ?[A-Z0-9]', qn_text)
@@ -532,7 +547,8 @@ def addHighlights(qn_ele: _Element,
                 marker = marker_tamplate.format(text=string.upper())
                 strings.append(marker)
             elif re.fullmatch(spaces, string):
-                marker = marker_with_pop_template.format(text='&nbsp;&nbsp;', tool_tip_title='More than one space')
+                marker = marker_with_pop_template.format(
+                    text='&nbsp;&nbsp;', tool_tip_title='More than one space')
                 strings.append(marker)
             else:
                 strings.append(string)
@@ -541,7 +557,8 @@ def addHighlights(qn_ele: _Element,
     q_inner = ''.join(strings)
 
     if q_inner[-1] != '.':
-        marker = marker_with_pop_template.format(text=q_inner[-1], tool_tip_title='Expected full stop')
+        marker = marker_with_pop_template.format(
+            text=q_inner[-1], tool_tip_title='Expected full stop')
         q_inner = q_inner[:-1] + marker
 
     temp_element = html.fromstring(
@@ -551,8 +568,6 @@ def addHighlights(qn_ele: _Element,
     qn_ele.append(temp_element)
     # print(html.tostring(qn_ele))
     temp_element.drop_tag()
-
-
 
 
 if __name__ == "__main__":
