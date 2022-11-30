@@ -165,7 +165,7 @@ class Ui_MainWindow(object):
         self.checkBox_3_OP.setText(_translate(
             "MainWindow", "Future Business A"))
         self.intro_text_2.setText(_translate(
-            "MainWindow", "<html><head/><body><p>Create a quick proof of the Order Paper. First select the sitting date, then press \'Create Quick Proof\'. This app will query the order paper and EQM APIs for the relevant information and arrange it for you in a web browser. </p></body></html>"))
+            "MainWindow", "<html><head/><body><p>Create an approximate rendering of Order Paper items. First select the sitting date, then press \'Create Quick Proof\'. This app will query the order paper and EQM APIs for the relevant information and arrange it for you in a web browser. </p></body></html>"))
         self.create_proof_btn_OP.setText(
             _translate("MainWindow", "Create Quick Proof"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(

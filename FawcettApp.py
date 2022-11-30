@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = '5.1.0'
+__version__ = '6.0.0'
 
 import argparse
 from copy import deepcopy
@@ -31,8 +31,10 @@ from lxml.html.builder import H3, H4, CLASS, P, SPAN, STRONG
 from lxml.etree import _Element, Element, iselement
 # from lxml.etree import Element
 
+# v6: Import v6 version of UI (with tabbed panels)
 from package.MainWindow_ui_v6 import Ui_MainWindow
 
+# v6: Import order paper scripts
 from logic.order_paper.order_paper import order_paper
 
 # print(sys.version)
@@ -152,14 +154,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # create buttons
         self.create_proof_btn.clicked.connect(self.run_script)
+
+        # v6: Create order paper proof button
         self.create_proof_btn_OP.clicked.connect(self.run_script_op)
 
         # log button
         self.logBtn.clicked.connect(self.open_log)
 
+    # v6: Handle click of order papaer proof button
     def run_script_op(self):
 
+        # Get sitting date as python Date object
         _date = self.dateEdit_OP.date().toPyDate()
+
+        # Create 'shopping list' of sections to proof based on checkboxes
         _shopping_list = []
 
         if (self.checkBox_1_OP.isChecked()):
