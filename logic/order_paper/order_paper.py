@@ -70,7 +70,7 @@ OUTPUT_HTML_TEMPLATE = '''
                                             Order Paper preview
                                         </h2>
                                         <p class="unformatted">
-                                            <strong>This is an approximate rendering of Order Paper items.</strong> Some aspects of the Order Paper's layout and content are finialised by PPU at the point of publication. If you have any questions about the limitations of this tool, or notice any issues with the rendering of the information, please contact a member of <a href="https://intranet.parliament.uk/people-offices/offices-departments/commons-departments/chamber-and-participation-team/vote-office1/ppu/" taRGET="_blank">PPU's technology team</a>.
+                                            <strong>This is an approximate rendering of Order Paper items.</strong> Some aspects of the Order Paper's layout and content are only finialised at the point of publication. If you have any questions about the limitations of this tool, or notice any issues with the rendering of the information, please contact a member of <a href="https://intranet.parliament.uk/people-offices/offices-departments/commons-departments/chamber-and-participation-team/vote-office1/ppu/" taRGET="_blank">PPU's technology team</a>.
                                         </p>
                                         {CONTENT}
                                     </div>
@@ -103,6 +103,7 @@ def generate_html_element(node) -> str:
         ['Bulleted', 'paraBusinessItemHeading-bulleted', 'p'],
         ['QuestionRestart', 'paraQuestion', 'p'],
         ['Question', 'paraQuestion', 'p'],
+        ['PMQ', 'paraQuestion', 'p'],
         ['TopicalQuestionRestart', 'paraQuestion', 'p'],
         ['TopicalQuestion', 'paraQuestion', 'p'],
         ['Number', 'number-span', 'span'],
