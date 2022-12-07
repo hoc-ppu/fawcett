@@ -168,7 +168,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="create_proof_word_btn">
            <property name="text">
             <string>Word Quick Proof</string>
            </property>

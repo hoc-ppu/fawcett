@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\wigzellj\Projects\github\Fawcett\designer\mainwindow_v6.ui'
+# Form implementation generated from reading ui file 'designer/mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -32,9 +32,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.label_2)
         self.gridLayout.addWidget(self.widget, 4, 0, 1, 1)
         self.label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
-        )
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -85,9 +83,9 @@ class Ui_MainWindow(object):
         self.label_4 = QtWidgets.QLabel(self.frame)
         self.label_4.setObjectName("label_4")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
-        self.pushButton = QtWidgets.QPushButton(self.frame)
-        self.pushButton.setObjectName("pushButton")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.pushButton)
+        self.create_proof_word_btn = QtWidgets.QPushButton(self.frame)
+        self.create_proof_word_btn.setObjectName("create_proof_word_btn")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.create_proof_word_btn)
         self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -158,9 +156,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.frame_5, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.actionInstilation_Instructions = QtWidgets.QAction(MainWindow)
-        self.actionInstilation_Instructions.setObjectName(
-            "actionInstilation_Instructions"
-        )
+        self.actionInstilation_Instructions.setObjectName("actionInstilation_Instructions")
         self.actionView_source_code = QtWidgets.QAction(MainWindow)
         self.actionView_source_code.setObjectName("actionView_source_code")
 
@@ -178,7 +174,7 @@ class Ui_MainWindow(object):
         self.create_proof_btn.setText(_translate("MainWindow", "Browser Quick Proof"))
         self.label_3.setText(_translate("MainWindow", "Create a proof in a web browser:"))
         self.label_4.setText(_translate("MainWindow", "Create a proof in Word:"))
-        self.pushButton.setText(_translate("MainWindow", "Word Quick Proof"))
+        self.create_proof_word_btn.setText(_translate("MainWindow", "Word Quick Proof"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "Questions Tabled"))
         self.intro_text_2.setText(_translate("MainWindow", "<html><head/><body><p>Create a quick proof of the \'Questions Tabled On\' document. First select the tableing date for the questions then press \'Create Quick Proof\'. This program will query the <a href=\"https://api.eqm.parliament.uk/\"><span style=\" text-decoration: underline; color:#419cff;\">EQM API</span></a> for the relevant questions and arrange them for you in a web browser. </p></body></html>"))
         self.date_label_OP.setText(_translate("MainWindow", "Sitting date"))
