@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = "5.2.0"
+__version__ = "6.0.0"
 
 import argparse
 from copy import deepcopy
@@ -18,8 +18,6 @@ import re
 from socket import timeout
 import ssl
 import sys
-
-# import subprocess
 from tempfile import mkstemp
 from typing import Optional, Any
 from threading import Thread
@@ -36,7 +34,11 @@ from lxml.etree import _Element, Element, iselement
 
 # from lxml.etree import Element
 
+# v6: Import v6 version of UI (with tabbed panels)
 from package.MainWindow_ui import Ui_MainWindow
+
+# v6: Import order paper scripts
+from package.order_paper import order_paper
 
 # print(sys.version)
 
@@ -74,6 +76,8 @@ logger.addHandler(ch)
 #
 # warning and error functions. These are redefined later if using GUI.
 #
+
+
 def cmd_warning(msg: str):
     logger.warning(msg)
 
@@ -166,12 +170,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # set the dates to today
         self.dateEdit.setDate(QtCore.QDate.currentDate())
+        self.dateEdit_OP.setDate(QtCore.QDate.currentDate())
 
-        # create button
+        # create buttons
         self.create_proof_btn.clicked.connect(self.run_script)
 
         # create word button
         self.create_proof_word_btn.clicked.connect(self.run_word_script)
+        # v6: Create order paper proof button
+        self.create_proof_btn_OP.clicked.connect(self.run_script_op)
 
         # log button
         self.logBtn.clicked.connect(self.open_log)
@@ -180,6 +187,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         _date = self.dateEdit.date().toPyDate()
 
         run(_date, word=True)
+    # v6: Handle click of order papaer proof button
+    def run_script_op(self):
+
+        # Get sitting date as python Date object
+        _date = self.dateEdit_OP.date().toPyDate()
+
+        # Create 'shopping list' of sections to proof based on checkboxes
+        _shopping_list = []
+
+        if self.checkBox_1_OP.isChecked():
+            _shopping_list.append("effectives")
+
+        if self.checkBox_2_OP.isChecked():
+            _shopping_list.append("announcements")
+
+        if self.checkBox_3_OP.isChecked():
+            _shopping_list.append("futurea")
+
+        order_paper(str(_date), _shopping_list)
 
     def run_script(self):
 
@@ -191,7 +217,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def open_log(self):
         if platform.system() == "Darwin":  # macOS
-            os.system(f'open "{LOG_FILE_PATH}"')  # a bit hacky, use subprocess instead?
+            # a bit hacky, use subprocess instead?
+            os.system(f'open "{LOG_FILE_PATH}"')
 
         elif platform.system() == "Windows":  # Windows
             # os.system(f'start " {str(LOG_FILE_PATH)}"')
@@ -275,7 +302,6 @@ def open_Word(filepath):
     else:
         # not a windows system
         os_system("open " + filepath)  # `open` works on macOS, not sure about Linux
-
 
 def json_from_uri(uri: str, showerror=True) -> Optional[Any]:
     headers = {"Content-Type": "application/json"}

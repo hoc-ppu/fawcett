@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'designer/mainwindow.ui'
+# Form implementation generated from reading ui file 'c:\Users\wigzellj\Projects\github\Fawcett\designer\mainwindow_v6.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -32,7 +32,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.label_2)
         self.gridLayout.addWidget(self.widget, 4, 0, 1, 1)
         self.label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -156,7 +158,9 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.frame_5, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.actionInstilation_Instructions = QtWidgets.QAction(MainWindow)
-        self.actionInstilation_Instructions.setObjectName("actionInstilation_Instructions")
+        self.actionInstilation_Instructions.setObjectName(
+            "actionInstilation_Instructions"
+        )
         self.actionView_source_code = QtWidgets.QAction(MainWindow)
         self.actionView_source_code.setObjectName("actionView_source_code")
 
