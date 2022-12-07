@@ -16,7 +16,7 @@ from os import path
 try:
     import get_op_utility_functions2 as op_functions
 except ImportError:
-    import logic.order_paper.get_op_utility_functions2 as op_functions
+    import package.get_op_utility_functions2 as op_functions
 
 
 fileextension = '-announcements-for-InDesign.xml'

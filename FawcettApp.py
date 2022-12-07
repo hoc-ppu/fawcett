@@ -32,10 +32,10 @@ from lxml.etree import _Element, Element, iselement
 # from lxml.etree import Element
 
 # v6: Import v6 version of UI (with tabbed panels)
-from package.MainWindow_ui_v6 import Ui_MainWindow
+from package.MainWindow_ui import Ui_MainWindow
 
 # v6: Import order paper scripts
-from logic.order_paper.order_paper import order_paper
+from package.order_paper import order_paper
 
 # print(sys.version)
 

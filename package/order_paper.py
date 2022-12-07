@@ -13,13 +13,13 @@ import re
 
 # Scripts borrowed from the Order Paper production process
 # this is the brains of the part 1 operation
-import logic.order_paper.get_part1_xml_cmd_v3 as part1_script
+import package.get_part1_xml_cmd_v3 as part1_script
 # this is the brains of the fba operation
-import logic.order_paper.get_fba_xml_cmd_v3 as fba_script
+import package.get_fba_xml_cmd_v3 as fba_script
 # this is the brains of the announcements operation
-import logic.order_paper.get_announcements_xml_cmd_v2 as ann_script
+import package.get_announcements_xml_cmd_v2 as ann_script
 # this is the brains of the questions operation
-import logic.order_paper.TransformQuestionsXML_cmd as cmd_version
+import package.TransformQuestionsXML_cmd as cmd_version
 
 # GLOBALS
 

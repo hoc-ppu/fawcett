@@ -18,7 +18,7 @@ from datetime import date
 try:
     import get_op_utility_functions2 as op_functions
 except ImportError:
-    import logic.order_paper.get_op_utility_functions2 as op_functions
+    import package.get_op_utility_functions2 as op_functions
 
 fileextension = '-FBA-for-InDesign.xml'
 
