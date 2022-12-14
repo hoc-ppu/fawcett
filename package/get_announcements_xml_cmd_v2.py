@@ -45,7 +45,7 @@ def process_xml(input_xml, input_date):
     laying_minister_lookup = {}
     laying_minister_lookup = op_functions.get_mnis_data(laying_minister_lookup)
 
-    input_root = etree.parse(input_xml).getroot()
+    input_root = etree.parse(str(input_xml)).getroot()
 
     op_functions.dropns(input_root)
     # print(input_root.tag)

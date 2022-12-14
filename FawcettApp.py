@@ -187,6 +187,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         _date = self.dateEdit.date().toPyDate()
 
         run(_date, word=True)
+
     # v6: Handle click of order papaer proof button
     def run_script_op(self):
 

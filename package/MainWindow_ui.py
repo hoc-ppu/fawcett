@@ -32,7 +32,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.label_2)
         self.gridLayout.addWidget(self.widget, 4, 0, 1, 1)
         self.label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -76,7 +78,9 @@ class Ui_MainWindow(object):
         self.create_proof_btn = QtWidgets.QPushButton(self.frame)
         self.create_proof_btn.setMaximumSize(QtCore.QSize(500, 16777215))
         self.create_proof_btn.setObjectName("create_proof_btn")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.create_proof_btn)
+        self.formLayout.setWidget(
+            1, QtWidgets.QFormLayout.FieldRole, self.create_proof_btn
+        )
         self.label_3 = QtWidgets.QLabel(self.frame)
         self.label_3.setObjectName("label_3")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_3)
@@ -85,7 +89,9 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
         self.create_proof_word_btn = QtWidgets.QPushButton(self.frame)
         self.create_proof_word_btn.setObjectName("create_proof_word_btn")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.create_proof_word_btn)
+        self.formLayout.setWidget(
+            2, QtWidgets.QFormLayout.FieldRole, self.create_proof_word_btn
+        )
         self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -107,21 +113,31 @@ class Ui_MainWindow(object):
         self.date_label_OP = QtWidgets.QLabel(self.frame_3)
         self.date_label_OP.setWordWrap(True)
         self.date_label_OP.setObjectName("date_label_OP")
-        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.date_label_OP)
+        self.formLayout_2.setWidget(
+            0, QtWidgets.QFormLayout.LabelRole, self.date_label_OP
+        )
         self.dateEdit_OP = QtWidgets.QDateEdit(self.frame_3)
         self.dateEdit_OP.setMaximumSize(QtCore.QSize(200, 16777215))
         self.dateEdit_OP.setCalendarPopup(True)
         self.dateEdit_OP.setObjectName("dateEdit_OP")
-        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.dateEdit_OP)
+        self.formLayout_2.setWidget(
+            0, QtWidgets.QFormLayout.FieldRole, self.dateEdit_OP
+        )
         self.checkBox_1_OP = QtWidgets.QCheckBox(self.frame_3)
         self.checkBox_1_OP.setObjectName("checkBox_1_OP")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.SpanningRole, self.checkBox_1_OP)
+        self.formLayout_2.setWidget(
+            1, QtWidgets.QFormLayout.SpanningRole, self.checkBox_1_OP
+        )
         self.checkBox_2_OP = QtWidgets.QCheckBox(self.frame_3)
         self.checkBox_2_OP.setObjectName("checkBox_2_OP")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.SpanningRole, self.checkBox_2_OP)
+        self.formLayout_2.setWidget(
+            2, QtWidgets.QFormLayout.SpanningRole, self.checkBox_2_OP
+        )
         self.checkBox_3_OP = QtWidgets.QCheckBox(self.frame_3)
         self.checkBox_3_OP.setObjectName("checkBox_3_OP")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.SpanningRole, self.checkBox_3_OP)
+        self.formLayout_2.setWidget(
+            3, QtWidgets.QFormLayout.SpanningRole, self.checkBox_3_OP
+        )
         self.verticalLayout.addWidget(self.frame_3)
         self.frame_4 = QtWidgets.QFrame(self.tab_2)
         self.frame_4.setFrameShape(QtWidgets.QFrame.NoFrame)
@@ -130,13 +146,17 @@ class Ui_MainWindow(object):
         self.frame_4.setObjectName("frame_4")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame_4)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem)
         self.create_proof_btn_OP = QtWidgets.QPushButton(self.frame_4)
         self.create_proof_btn_OP.setMaximumSize(QtCore.QSize(250, 16777215))
         self.create_proof_btn_OP.setObjectName("create_proof_btn_OP")
         self.horizontalLayout.addWidget(self.create_proof_btn_OP)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem1)
         self.verticalLayout.addWidget(self.frame_4)
         self.tabWidget.addTab(self.tab_2, "")
@@ -147,7 +167,9 @@ class Ui_MainWindow(object):
         self.frame_5.setObjectName("frame_5")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.frame_5)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_2.addItem(spacerItem2)
         self.logBtn = QtWidgets.QPushButton(self.frame_5)
         self.logBtn.setMaximumSize(QtCore.QSize(500, 16777215))
@@ -156,7 +178,9 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.frame_5, 2, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.actionInstilation_Instructions = QtWidgets.QAction(MainWindow)
-        self.actionInstilation_Instructions.setObjectName("actionInstilation_Instructions")
+        self.actionInstilation_Instructions.setObjectName(
+            "actionInstilation_Instructions"
+        )
         self.actionView_source_code = QtWidgets.QAction(MainWindow)
         self.actionView_source_code.setObjectName("actionView_source_code")
 
@@ -167,22 +191,53 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Fawcett App"))
-        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Usage Instructions, background and installation instructions are avaliable on <a href=\"https://hopuk.sharepoint.com/:w:/r/sites/bct-ppu/Scripts/Shared_Parliament_wide/FawcettApp/FawcettAppInstructions-v5.docx?d=wc1bf4be10a64428080752b7dd812a05f&amp;csf=1&amp;web=1&amp;e=6pE9DC\"><span style=\" text-decoration: underline; color:#419cff;\">SharePoint.</span></a><br/>You can also view the source code on <a href=\"https://github.com/hoc-ppu/Fawcett\"><span style=\" text-decoration: underline; color:#419cff;\">GitHub</span></a>.</p></body></html>"))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:24pt; font-weight:600; color:#79b656;\">Fawcett App </span><span style=\" font-size:14pt; font-weight:600; color:#79b656;\">(v6.0)</span></p></body></html>"))
-        self.intro_text.setText(_translate("MainWindow", "<html><head/><body><p>Create a quick proof of the \'Questions Tabled On\' document. First select the tableing date for the questions then press \'Create Quick Proof\'. This program will query the <a href=\"https://api.eqm.parliament.uk/\"><span style=\" text-decoration: underline; color:#419cff;\">EQM API</span></a> for the relevant questions and arrange them for you in a web browser. </p></body></html>"))
+        self.label_2.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p>Usage Instructions, background and installation instructions are avaliable on <a href="https://hopuk.sharepoint.com/:w:/r/sites/bct-ppu/Scripts/Shared_Parliament_wide/FawcettApp/FawcettAppInstructions-v5.docx?d=wc1bf4be10a64428080752b7dd812a05f&amp;csf=1&amp;web=1&amp;e=6pE9DC"><span style=" text-decoration: underline; color:#419cff;">SharePoint.</span></a><br/>You can also view the source code on <a href="https://github.com/hoc-ppu/Fawcett"><span style=" text-decoration: underline; color:#419cff;">GitHub</span></a>.</p></body></html>',
+            )
+        )
+        self.label.setText(
+            _translate(
+                "MainWindow",
+                '<html><head/><body><p><span style=" font-size:24pt; font-weight:600; color:#79b656;">Fawcett App </span><span style=" font-size:14pt; font-weight:600; color:#79b656;">(v6.0)</span></p></body></html>',
+            )
+        )
+        self.intro_text.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Create a quick proof of the 'Questions Tabled On' document. First select the tableing date for the questions then press 'Create Quick Proof'. This program will query the <a href=\"https://api.eqm.parliament.uk/\"><span style=\" text-decoration: underline; color:#419cff;\">EQM API</span></a> for the relevant questions and arrange them for you in a web browser. </p></body></html>",
+            )
+        )
         self.date_label.setText(_translate("MainWindow", "Tabling date:"))
         self.create_proof_btn.setText(_translate("MainWindow", "Browser Quick Proof"))
-        self.label_3.setText(_translate("MainWindow", "Create a proof in a web browser:"))
+        self.label_3.setText(
+            _translate("MainWindow", "Create a proof in a web browser:")
+        )
         self.label_4.setText(_translate("MainWindow", "Create a proof in Word:"))
         self.create_proof_word_btn.setText(_translate("MainWindow", "Word Quick Proof"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "Questions Tabled"))
-        self.intro_text_2.setText(_translate("MainWindow", "<html><head/><body><p>Create a quick proof of the \'Questions Tabled On\' document. First select the tableing date for the questions then press \'Create Quick Proof\'. This program will query the <a href=\"https://api.eqm.parliament.uk/\"><span style=\" text-decoration: underline; color:#419cff;\">EQM API</span></a> for the relevant questions and arrange them for you in a web browser. </p></body></html>"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_1),
+            _translate("MainWindow", "Questions Tabled"),
+        )
+        self.intro_text_2.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Create an approximate rendering of Order Paper items. First select the sitting date, then press 'Create Quick Proof'. This app will query the order paper and EQM APIs for the relevant information and arrange it for you in a web browser. </p></body></html>",
+            )
+        )
         self.date_label_OP.setText(_translate("MainWindow", "Sitting date"))
         self.checkBox_1_OP.setText(_translate("MainWindow", "Effectives"))
         self.checkBox_2_OP.setText(_translate("MainWindow", "Announcements"))
         self.checkBox_3_OP.setText(_translate("MainWindow", "Future Business A"))
         self.create_proof_btn_OP.setText(_translate("MainWindow", "Create Quick Proof"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Order Paper"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Order Paper")
+        )
         self.logBtn.setText(_translate("MainWindow", "Open Log"))
-        self.actionInstilation_Instructions.setText(_translate("MainWindow", "Instilation Instructions"))
-        self.actionView_source_code.setText(_translate("MainWindow", "View source code"))
+        self.actionInstilation_Instructions.setText(
+            _translate("MainWindow", "Instilation Instructions")
+        )
+        self.actionView_source_code.setText(
+            _translate("MainWindow", "View source code")
+        )

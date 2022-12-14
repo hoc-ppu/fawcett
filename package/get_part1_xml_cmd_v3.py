@@ -78,7 +78,7 @@ def process_xml(input_xml, input_date):
 
     # sections included in this script (Written Statements will be sorted separatly)
     section_names = ("Chamber", "Westminster Hall", "Deferred Divisions")
-    input_root = etree.parse(input_xml).getroot()
+    input_root = etree.parse(str(input_xml)).getroot()
 
     op_functions.dropns(input_root)
 
