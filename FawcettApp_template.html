@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-GB">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,59 +11,71 @@
   <!-- Bootstrap -->
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
 
   <style>
-    .uin{
+    .uin {
       font-size: 0.8em;
       float: right;
       padding-left: 40px;
     }
-    .questionNumber{
+
+    .questionNumber {
       float: left;
       width: 40px;
       height: 100%;
     }
-    .questionContainer{
+
+    .questionContainer {
       clear: both;
       margin-bottom: 15px;
       margin-left: 40px;
       margin-top: 10px;
       text-indent: -40px;
     }
-    div#info{
+
+    div#info {
       margin-top: 30px;
     }
-    tr.lineunder{
+
+    tr.lineunder {
       border-bottom: 1px solid #000;
     }
-    h3{
+
+    h3 {
       margin-top: 40px;
     }
-    body{
+
+    body {
       font-family: "Frutiger LT Std";
-      font-family: "Frutiger LT Std", "Humanist 777", "Open Sans", -apple-system,BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Verdana, Calibri, Arial, sans-serif !important;
+      font-family: "Frutiger LT Std", "Humanist 777", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Verdana, Calibri, Arial, sans-serif !important;
       margin-top: 40px;
     }
-    td > p{
+
+    td>p {
       margin: 5px;
     }
+
     .marker {
-      background-color: rgba(250,220, 0, 0.5);
+      background-color: rgba(250, 220, 0, 0.5);
       font-size: 1.1em;
       font-weight: bold;
     }
+
     .marker-pink {
       background-color: rgba(255, 119, 203, 0.541);
       font-size: 1.1em;
       font-weight: bold;
     }
+
     @media print {
       body {
         margin: 20px 0 20px 0;
         min-width: 768px;
         padding: 0 !important;
       }
+
       .container {
         min-width: 750px;
         width: auto;
@@ -71,54 +84,89 @@
   </style>
 
 </head>
+
 <body>
   <div class="container">
     <div class="col-sm-10 col-sm-offset-1">
-      <h5>The Fawcett App <small>version 5.1</small></h5>
+      <h5>The Fawcett App <small>version 6.0</small></h5>
 
       <h1 id="main_title">Questions tabled on</h1>
 
       <div id="info">
         <table>
           <tr>
-            <td><p class="small">Ordinary writtens</p></td>
-            <td><p id="ordinary" class="small"></p></td>
+            <td>
+              <p class="small">Ordinary writtens</p>
+            </td>
+            <td>
+              <p id="ordinary" class="small"></p>
+            </td>
           </tr>
           <tr>
-            <td><p class="small">Named day writtens</p></td>
-            <td><p id="nameDay" class="small"></p></td>
+            <td>
+              <p class="small">Named day writtens</p>
+            </td>
+            <td>
+              <p id="nameDay" class="small"></p>
+            </td>
           </tr>
           <tr class="lineunder">
-            <td><p class="small"><strong>Total Writtens</strong></p></td>
-            <td><p class="small"><strong id="totalWrittens"></strong></p></td>
+            <td>
+              <p class="small"><strong>Total Writtens</strong></p>
+            </td>
+            <td>
+              <p class="small"><strong id="totalWrittens"></strong></p>
+            </td>
           </tr>
           <tr>
-            <td><p class="small">Substantive orals</p></td>
-            <td><p class="small" id="substantive"></p></td>
+            <td>
+              <p class="small">Substantive orals</p>
+            </td>
+            <td>
+              <p class="small" id="substantive"></p>
+            </td>
           </tr>
           <tr>
-            <td><p class="small">Topical orals</p></td>
-            <td><p class="small" id="topical"></p></td>
+            <td>
+              <p class="small">Topical orals</p>
+            </td>
+            <td>
+              <p class="small" id="topical"></p>
+            </td>
           </tr>
           <tr class="lineunder">
-            <td><p class="small"><strong>Total Orals</strong></p></td>
-            <td><p class="small"><strong id="totalOrals"></strong></p></td>
+            <td>
+              <p class="small"><strong>Total Orals</strong></p>
+            </td>
+            <td>
+              <p class="small"><strong id="totalOrals"></strong></p>
+            </td>
           </tr>
           <tr class="lineunder">
-            <td><p><strong>Grand Total</strong></p></td>
-            <td><p><strong id="grandTotal"></strong></p></td>
+            <td>
+              <p><strong>Grand Total</strong></p>
+            </td>
+            <td>
+              <p><strong id="grandTotal"></strong></p>
+            </td>
           </tr>
         </table>
       </div>
       <div class="questions">
         <p><br></p>
-        <p><strong>For installation instructions <a href="https://hopuk.sharepoint.com/:w:/r/sites/bct-ppu/_layouts/15/Doc.aspx?sourcedoc=%7B6B4ACE86-8B55-4742-A8EC-12BE078E67A2%7D&file=FawcettAppInstructions.docx&action=default&mobileredirect=true">click here</a></strong></p>
+        <p><strong>For installation instructions <a
+              href="https://hopuk.sharepoint.com/:w:/r/sites/bct-ppu/_layouts/15/Doc.aspx?sourcedoc=%7B6B4ACE86-8B55-4742-A8EC-12BE078E67A2%7D&file=FawcettAppInstructions.docx&action=default&mobileredirect=true">click
+              here</a></strong></p>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+    crossorigin="anonymous"></script>
 
   <!-- <script>
     $("[contenteditable]").each(function( index ) {
