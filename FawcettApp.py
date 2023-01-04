@@ -243,11 +243,13 @@ def run(chosen_date: date, word=False):
     eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime("%Y-%m-%d"))
 
     if not eqm_data:
+        logger.warning("Error getting data from EQM")
         return
 
     mnis_data = json_from_uri(MNIS_ANSWERING_BODIES_URI)
 
     if not mnis_data:
+        logger.warning("Error getting data from MNIS")
         return
 
     html_template = buildUpHTML(eqm_data, mnis_data, chosen_date)
