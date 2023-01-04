@@ -188,7 +188,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         run(_date, word=True)
 
-    # v6: Handle click of order papaer proof button
+    # v6: Handle click of order paper proof button
     def run_script_op(self):
 
         # Get sitting date as python Date object
@@ -241,10 +241,12 @@ def run(chosen_date: date, word=False):
     # with open('test-2021-11-25.json', 'r') as f:
     #     eqm_data = json.load(f)
     eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime("%Y-%m-%d"))
+
     if not eqm_data:
         return
 
     mnis_data = json_from_uri(MNIS_ANSWERING_BODIES_URI)
+
     if not mnis_data:
         return
 
@@ -303,6 +305,7 @@ def open_Word(filepath):
     else:
         # not a windows system
         os_system("open " + filepath)  # `open` works on macOS, not sure about Linux
+
 
 def json_from_uri(uri: str, showerror=True) -> Optional[Any]:
     headers = {"Content-Type": "application/json"}

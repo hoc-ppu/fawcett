@@ -63,231 +63,245 @@ def process_xml(input_xml, input_date):
             date_to_remove.append(day_element)
     for day_element in date_to_remove:
         day_elements.remove(day_element)
-    if len(day_elements) < 1:
-        input(
-            "Error:\tCan't seem to find the date you are after. "
-            "Check it appears in the XML, Press any key to exit."
-        )
-        exit()
 
-    # build up output tree
-    output_root = Element("root")
-    # add the FBA title
-    SubElement(output_root, "OPHeading1").text = "A. Calendar of Business"
+    output_root = etree.fromstring("<root></root>")
 
-    for day_element in day_elements:
-        # get all the sections
-        sections: List[_Element]
-        sections = day_element.xpath("Sections/Section")  # type: ignore
-        sections_in_day_list = []
-        for section in sections:
-            sections_in_day_list.append(
-                section.findtext("Name", default="").strip().upper()
-            )
+    if len(day_elements) > 0:
 
-        # Add the date in a level 2 gray heading
-        date_elelemnt = day_element.find("Date")
-        if date_elelemnt is not None and (
-            "CHAMBER" in sections_in_day_list
-            or "WESTMINSTER HALL" in sections_in_day_list
-        ):
-            formatted_date = op_functions.format_date(date_elelemnt.text)
-            if formatted_date is not None:
-                SubElement(output_root, "OPHeading2").text = formatted_date
+        # build up output tree
+        output_root = Element("root")
+        # add the FBA title
+        SubElement(output_root, "OPHeading1").text = "A. Calendar of Business"
 
-        # create a variable to store a reference to the heading
-        # as where a business item falls determins its style
-        last_gray_heading_text = ""
-        # print(sections)
-        for section in sections:
-            section_name = section.findtext("Name")
-            if section_name is not None:
-                section_name = section_name.strip().upper()
-            if section_name in ("CHAMBER", "WESTMINSTER HALL"):
-                SubElement(output_root, "FbaLocation").text = section_name
-            else:
-                continue
-            # get all the DayItem in the day
-            dayItems: List[_Element]
-            dayItems = section.xpath(".//DayItem")  # type: ignore
+        for day_element in day_elements:
+            # get all the sections
+            sections: List[_Element]
+            sections = day_element.xpath("Sections/Section")  # type: ignore
+            sections_in_day_list = []
+            for section in sections:
+                sections_in_day_list.append(
+                    section.findtext("Name", default="").strip().upper()
+                )
 
-            for dayItem in dayItems:
-                # get the day item type or None
-                day_item_type = dayItem.find("DayItemType")
-                # we need the day item type to not be None
-                if day_item_type is None:
+            # Add the date in a level 2 gray heading
+            date_elelemnt = day_element.find("Date")
+            if date_elelemnt is not None and (
+                "CHAMBER" in sections_in_day_list
+                or "WESTMINSTER HALL" in sections_in_day_list
+            ):
+                formatted_date = op_functions.format_date(date_elelemnt.text)
+                if formatted_date is not None:
+                    SubElement(output_root, "OPHeading2").text = formatted_date
+
+            # create a variable to store a reference to the heading
+            # as where a business item falls determins its style
+            last_gray_heading_text = ""
+            # print(sections)
+            for section in sections:
+                section_name = section.findtext("Name")
+                if section_name is not None:
+                    section_name = section_name.strip().upper()
+                if section_name in ("CHAMBER", "WESTMINSTER HALL"):
+                    SubElement(output_root, "FbaLocation").text = section_name
+                else:
                     continue
-                # check if this item is a child of another day item
-                day_item_parent = dayItem.getparent()
-                if day_item_parent is not None and day_item_parent == "ChildDayItems":
-                    day_item_is_child = True
-                else:
-                    day_item_is_child = False
-                # check if this item has children
-                child_day_items = dayItem.find("BusinessItemDetail/ChildDayItems")
-                if child_day_items is not None and len(child_day_items) > 0:
-                    has_children = True
-                else:
-                    has_children = False
-                # find the title if it exists
-                title_element = dayItem.find("Title")
-                title = ""
-                if title_element is not None and title_element.text:
-                    title = title_element.text.strip()
+                # get all the DayItem in the day
+                dayItems: List[_Element]
+                dayItems = section.xpath(".//DayItem")  # type: ignore
 
-                # first test to see if the day item is a heading
-                # and then update the section to append to
-
-                if (
-                    day_item_type.text == "SectionDayDivider"
-                    and dayItem.find("Title") is not None
-                ):
-                    last_gray_heading_text = dayItem.findtext(
-                        "Title", default=""
-                    ).upper()
-                    if last_gray_heading_text.upper() not in (
-                        "BUSINESS OF THE DAY",
-                        "URGENT QUESTIONS AND STATEMENTS",
-                        "ORDER OF BUSINESS",
+                for dayItem in dayItems:
+                    # get the day item type or None
+                    day_item_type = dayItem.find("DayItemType")
+                    # we need the day item type to not be None
+                    if day_item_type is None:
+                        continue
+                    # check if this item is a child of another day item
+                    day_item_parent = dayItem.getparent()
+                    if (
+                        day_item_parent is not None
+                        and day_item_parent == "ChildDayItems"
                     ):
-                        # only add Questions and Adjournment debate heading if
-                        # not followed by another heading
-                        if last_gray_heading_text.upper() in (
-                            "QUESTIONS",
-                            "ADJOURNMENT DEBATE",
+                        day_item_is_child = True
+                    else:
+                        day_item_is_child = False
+                    # check if this item has children
+                    child_day_items = dayItem.find("BusinessItemDetail/ChildDayItems")
+                    if child_day_items is not None and len(child_day_items) > 0:
+                        has_children = True
+                    else:
+                        has_children = False
+                    # find the title if it exists
+                    title_element = dayItem.find("Title")
+                    title = ""
+                    if title_element is not None and title_element.text:
+                        title = title_element.text.strip()
+
+                    # first test to see if the day item is a heading
+                    # and then update the section to append to
+
+                    if (
+                        day_item_type.text == "SectionDayDivider"
+                        and dayItem.find("Title") is not None
+                    ):
+                        last_gray_heading_text = dayItem.findtext(
+                            "Title", default=""
+                        ).upper()
+                        if last_gray_heading_text.upper() not in (
+                            "BUSINESS OF THE DAY",
+                            "URGENT QUESTIONS AND STATEMENTS",
+                            "ORDER OF BUSINESS",
                         ):
-                            next_day_item = dayItem.getnext()
-                            if (
-                                next_day_item is not None
-                                and next_day_item.findtext("DayItemType", default="")
-                                != "SectionDayDivider"
+                            # only add Questions and Adjournment debate heading if
+                            # not followed by another heading
+                            if last_gray_heading_text.upper() in (
+                                "QUESTIONS",
+                                "ADJOURNMENT DEBATE",
                             ):
+                                next_day_item = dayItem.getnext()
+                                if (
+                                    next_day_item is not None
+                                    and next_day_item.findtext(
+                                        "DayItemType", default=""
+                                    )
+                                    != "SectionDayDivider"
+                                ):
+                                    SubElement(
+                                        output_root, "BusinessItemHeading"
+                                    ).text = title
+
+                            else:
                                 SubElement(
                                     output_root, "BusinessItemHeading"
                                 ).text = title
 
-                        else:
-                            SubElement(output_root, "BusinessItemHeading").text = title
-
-                # Do different things based on what business item type
-                business_item_type = dayItem.find("BusinessItemDetail/BusinessItemType")
-
-                if business_item_type is not None:
-                    # PRIVATE BUSINESS
-                    if business_item_type.text == "Private Business":
-                        SubElement(
-                            output_root, "BusinessItemHeadingBulleted"
-                        ).text = title
-
-                    # QUESTIONS
-                    if business_item_type.text == "Substantive Question":
-                        time_ele = dayItem.find("BusinessItemDetail/Time")
-                        formatted_time = ""  # default to empty str
-                        if time_ele is not None:
-                            formatted_time = op_functions.format_time(time_ele.text)
-                        SubElement(
-                            output_root, "QuestionTimeing"
-                        ).text = f"{formatted_time}\t{title}"
-
-                    if business_item_type.text in ("Motion", "Legislation"):
-                        # legislation and motion types appear differently if they are in business today
-                        if (
-                            last_gray_heading_text == "BUSINESS OF THE DAY"
-                            and day_item_is_child is False
-                        ):
-                            SubElement(output_root, "BusinessItemHeading").text = title
-                        else:
-                            SubElement(output_root, "Bulleted").text = title
-
-                    # Adjournment Debate type is displayed differently in the chamber vs westminster hall
-                    if business_item_type.text == "Adjournment Debate":
-                        # get the sponsor
-                        sponsor_name = dayItem.find(
-                            "BusinessItemDetail/Sponsors/Sponsor/Name"
-                        )
-                        if sponsor_name is None or sponsor_name.text is None:
-                            sponsor_name = ""
-                        else:
-                            sponsor_name = sponsor_name.text
-                        sponsor_ele = Element("PresenterSponsor")
-                        sponsor_ele.text = sponsor_name
-                        # title without end punctuation
-                        title_no_end_punctuation = title
-                        if title[-1] == ".":
-                            title_no_end_punctuation = title_no_end_punctuation[:-1]
-                        # Adjournment Debate type is displayed differently in the chamber vs westminster hall
-                        if section_name == "CHAMBER":
-                            adjourn_ele = Element("BusinessListItem")
-                            adjourn_ele.text = title_no_end_punctuation + ": "
-                        # westminster hall
-                        elif section_name == "WESTMINSTER HALL":
-                            adjourn_ele = Element("WHItemTiming")
-                            adjourn_ele.text = (
-                                op_functions.format_time(
-                                    dayItem.findtext(
-                                        "BusinessItemDetail/Time", default=""
-                                    )
-                                )
-                                + "\t"
-                                + title_no_end_punctuation
-                                + ": "
-                            )
-                        else:
-                            continue
-                        adjourn_ele.append(sponsor_ele)
-                        output_root.append(adjourn_ele)
-
-                    # Petitions
-                    if business_item_type.text == "Petition":
-                        # get the sponsor
-                        sponsor_name = dayItem.find(
-                            "BusinessItemDetail/Sponsors/Sponsor/Name"
-                        )
-                        if sponsor_name is None or sponsor_name.text is None:
-                            sponsor_name = ""
-                        else:
-                            sponsor_name = sponsor_name.text
-                        sponsor_ele = Element("PresenterSponsor")
-                        sponsor_ele.text = sponsor_name
-                        # title without end punctuation
-                        title_no_end_punctuation = title
-                        if title[-1] == ".":
-                            title_no_end_punctuation = title_no_end_punctuation[:-1]
-                        petition_ele = Element("BusinessListItem")
-                        petition_ele.text = title_no_end_punctuation + ": "
-                        petition_ele.append(sponsor_ele)
-                        output_root.append(petition_ele)
-
-                    # get the sponsor info
-                    if business_item_type.text not in (
-                        "Adjournment Debate",
-                        "Petition",
-                    ):
-                        op_functions.append_motion_sponosrs(
-                            dayItem, output_root, laying_minister_lookup
-                        )
-
-                # get the motion text and sponsors. Sponsors are included even when there is no text for PMBs
-                if dayItem.findtext("BusinessItemDetail/ItemText", default="") != "":
-
-                    # get the main item text
-                    motionText = Element("MotionText")
-                    motionText.append(
-                        op_functions.process_CDATA(
-                            dayItem.findtext("BusinessItemDetail/ItemText", default="")
-                        )
+                    # Do different things based on what business item type
+                    business_item_type = dayItem.find(
+                        "BusinessItemDetail/BusinessItemType"
                     )
-                    output_root.append(motionText)
 
-                # make sure we get any amendments
-                op_functions.append_amendments(
-                    dayItem, output_root, laying_minister_lookup
-                )
+                    if business_item_type is not None:
+                        # PRIVATE BUSINESS
+                        if business_item_type.text == "Private Business":
+                            SubElement(
+                                output_root, "BusinessItemHeadingBulleted"
+                            ).text = title
 
-                # get relevant documents and notes
-                op_functions.notes_relevant_docs(
-                    dayItem, output_root, has_children, day_item_is_child
-                )
+                        # QUESTIONS
+                        if business_item_type.text == "Substantive Question":
+                            time_ele = dayItem.find("BusinessItemDetail/Time")
+                            formatted_time = ""  # default to empty str
+                            if time_ele is not None:
+                                formatted_time = op_functions.format_time(time_ele.text)
+                            SubElement(
+                                output_root, "QuestionTimeing"
+                            ).text = f"{formatted_time}\t{title}"
+
+                        if business_item_type.text in ("Motion", "Legislation"):
+                            # legislation and motion types appear differently if they are in business today
+                            if (
+                                last_gray_heading_text == "BUSINESS OF THE DAY"
+                                and day_item_is_child is False
+                            ):
+                                SubElement(
+                                    output_root, "BusinessItemHeading"
+                                ).text = title
+                            else:
+                                SubElement(output_root, "Bulleted").text = title
+
+                        # Adjournment Debate type is displayed differently in the chamber vs westminster hall
+                        if business_item_type.text == "Adjournment Debate":
+                            # get the sponsor
+                            sponsor_name = dayItem.find(
+                                "BusinessItemDetail/Sponsors/Sponsor/Name"
+                            )
+                            if sponsor_name is None or sponsor_name.text is None:
+                                sponsor_name = ""
+                            else:
+                                sponsor_name = sponsor_name.text
+                            sponsor_ele = Element("PresenterSponsor")
+                            sponsor_ele.text = sponsor_name
+                            # title without end punctuation
+                            title_no_end_punctuation = title
+                            if title[-1] == ".":
+                                title_no_end_punctuation = title_no_end_punctuation[:-1]
+                            # Adjournment Debate type is displayed differently in the chamber vs westminster hall
+                            if section_name == "CHAMBER":
+                                adjourn_ele = Element("BusinessListItem")
+                                adjourn_ele.text = title_no_end_punctuation + ": "
+                            # westminster hall
+                            elif section_name == "WESTMINSTER HALL":
+                                adjourn_ele = Element("WHItemTiming")
+                                adjourn_ele.text = (
+                                    op_functions.format_time(
+                                        dayItem.findtext(
+                                            "BusinessItemDetail/Time", default=""
+                                        )
+                                    )
+                                    + "\t"
+                                    + title_no_end_punctuation
+                                    + ": "
+                                )
+                            else:
+                                continue
+                            adjourn_ele.append(sponsor_ele)
+                            output_root.append(adjourn_ele)
+
+                        # Petitions
+                        if business_item_type.text == "Petition":
+                            # get the sponsor
+                            sponsor_name = dayItem.find(
+                                "BusinessItemDetail/Sponsors/Sponsor/Name"
+                            )
+                            if sponsor_name is None or sponsor_name.text is None:
+                                sponsor_name = ""
+                            else:
+                                sponsor_name = sponsor_name.text
+                            sponsor_ele = Element("PresenterSponsor")
+                            sponsor_ele.text = sponsor_name
+                            # title without end punctuation
+                            title_no_end_punctuation = title
+                            if title[-1] == ".":
+                                title_no_end_punctuation = title_no_end_punctuation[:-1]
+                            petition_ele = Element("BusinessListItem")
+                            petition_ele.text = title_no_end_punctuation + ": "
+                            petition_ele.append(sponsor_ele)
+                            output_root.append(petition_ele)
+
+                        # get the sponsor info
+                        if business_item_type.text not in (
+                            "Adjournment Debate",
+                            "Petition",
+                        ):
+                            op_functions.append_motion_sponosrs(
+                                dayItem, output_root, laying_minister_lookup
+                            )
+
+                    # get the motion text and sponsors. Sponsors are included even when there is no text for PMBs
+                    if (
+                        dayItem.findtext("BusinessItemDetail/ItemText", default="")
+                        != ""
+                    ):
+
+                        # get the main item text
+                        motionText = Element("MotionText")
+                        motionText.append(
+                            op_functions.process_CDATA(
+                                dayItem.findtext(
+                                    "BusinessItemDetail/ItemText", default=""
+                                )
+                            )
+                        )
+                        output_root.append(motionText)
+
+                    # make sure we get any amendments
+                    op_functions.append_amendments(
+                        dayItem, output_root, laying_minister_lookup
+                    )
+
+                    # get relevant documents and notes
+                    op_functions.notes_relevant_docs(
+                        dayItem, output_root, has_children, day_item_is_child
+                    )
 
     # get the path to input file
     pwd = path.dirname(path.abspath(input_xml))

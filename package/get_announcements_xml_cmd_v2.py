@@ -53,84 +53,85 @@ def process_xml(input_xml, input_date):
     date_elements = input_root.xpath(
         'Days/Day/Date[text()[contains(.,"' + input_date + '")]]'
     )
-    if len(date_elements) != 1:
-        input(
-            "Error:\tCan't seem to find the date you are after. Check it appears in the XML, Press any key to exit."
-        )
-        exit()
-    else:
+
+    output_root = etree.fromstring("<root></root>")
+
+    if len(date_elements) > 0:
+
         day_element = date_elements[0].getparent()
         # print(day_element[1].tag)
-    # build up output tree
-    output_root = Element("root")
-    # output root Add element for Annoincements Title
-    SubElement(output_root, "OPHeading1").text = "Announcements"
+        # build up output tree
+        output_root = Element("root")
+        # output root Add element for Annoincements Title
+        SubElement(output_root, "OPHeading1").text = "Announcements"
 
-    # get all the DayItem in the day
-    announcement_dayItems = day_element.xpath(
-        './Sections/Section/Name[text()="Announcements"]/../DayItems/DayItem'
-    )
+        # get all the DayItem in the day
+        announcement_dayItems = day_element.xpath(
+            './Sections/Section/Name[text()="Announcements"]/../DayItems/DayItem'
+        )
 
-    for dayItem in announcement_dayItems:
-        # get the day item type or None
-        day_item_type = dayItem.find("DayItemType")
-        # we need the day item type to not be None
-        if day_item_type is None:
-            continue
-        # check if this item is a child of another day item
-        if dayItem.getparent().tag == "ChildDayItems":
-            day_item_is_child = True
-        else:
-            day_item_is_child = False
-        # check if this item has children
-        if (
-            dayItem.find("BusinessItemDetail/ChildDayItems") is not None
-            and len(dayItem.find("BusinessItemDetail/ChildDayItems")) > 0
-        ):
-            has_children = True
-        else:
-            has_children = False
-        # find the title if it exists
-        title = dayItem.find("Title")
-        # find the title text if it exists
-        title_text = dayItem.findtext("Title", default="")
+        for dayItem in announcement_dayItems:
+            # get the day item type or None
+            day_item_type = dayItem.find("DayItemType")
+            # we need the day item type to not be None
+            if day_item_type is None:
+                continue
+            # check if this item is a child of another day item
+            if dayItem.getparent().tag == "ChildDayItems":
+                day_item_is_child = True
+            else:
+                day_item_is_child = False
+            # check if this item has children
+            if (
+                dayItem.find("BusinessItemDetail/ChildDayItems") is not None
+                and len(dayItem.find("BusinessItemDetail/ChildDayItems")) > 0
+            ):
+                has_children = True
+            else:
+                has_children = False
+            # find the title if it exists
+            title = dayItem.find("Title")
+            # find the title text if it exists
+            title_text = dayItem.findtext("Title", default="")
 
-        # first test to see if the day item is a heading and then update the section to append to
+            # first test to see if the day item is a heading and then update the section to append to
 
-        if day_item_type.text == "SectionDayDivider":
-            # now add any section day divider title to the XML for InDesign
-            SubElement(output_root, "OPHeading2").text = title_text
+            if day_item_type.text == "SectionDayDivider":
+                # now add any section day divider title to the XML for InDesign
+                SubElement(output_root, "OPHeading2").text = title_text
 
-            # also add any notes
-            if dayItem.find("Notes") is not None:
-                SubElement(output_root, "DebateTimingRubric").text = dayItem.findtext(
-                    "Notes", default=""
+                # also add any notes
+                if dayItem.find("Notes") is not None:
+                    SubElement(
+                        output_root, "DebateTimingRubric"
+                    ).text = dayItem.findtext("Notes", default="")
+
+            # if this is a business item
+            elif day_item_type.text == "BusinessItem":
+                if title_text.upper().strip() != "NO TITLE NEEDED":
+                    SubElement(
+                        output_root, "BusinessItemHeadingBulleted"
+                    ).text = title_text
+
+                op_functions.append_timing_so(output_root, dayItem)
+                # make sure we get announcement stuff
+                businessItemType = dayItem.find("BusinessItemDetail/BusinessItemType")
+                # get the sponsor info
+                op_functions.append_motion_sponosrs(
+                    dayItem, output_root, laying_minister_lookup
                 )
-
-        # if this is a business item
-        elif day_item_type.text == "BusinessItem":
-            if title_text.upper().strip() != "NO TITLE NEEDED":
-                SubElement(output_root, "BusinessItemHeadingBulleted").text = title_text
-
-            op_functions.append_timing_so(output_root, dayItem)
-            # make sure we get announcement stuff
-            businessItemType = dayItem.find("BusinessItemDetail/BusinessItemType")
-            # get the sponsor info
-            op_functions.append_motion_sponosrs(
-                dayItem, output_root, laying_minister_lookup
-            )
-            if businessItemType is not None:
-                motionText = Element("MotionText")
-                motionText.append(
-                    op_functions.process_CDATA(
-                        dayItem.findtext("BusinessItemDetail/ItemText", default="")
+                if businessItemType is not None:
+                    motionText = Element("MotionText")
+                    motionText.append(
+                        op_functions.process_CDATA(
+                            dayItem.findtext("BusinessItemDetail/ItemText", default="")
+                        )
                     )
-                )
-                output_root.append(motionText)
-                # add Relevant Documents
-                op_functions.notes_relevant_docs(
-                    dayItem, output_root, has_children, day_item_is_child
-                )
+                    output_root.append(motionText)
+                    # add Relevant Documents
+                    op_functions.notes_relevant_docs(
+                        dayItem, output_root, has_children, day_item_is_child
+                    )
 
     # get the path to input file
     pwd = path.dirname(path.abspath(input_xml))

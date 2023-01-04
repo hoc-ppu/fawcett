@@ -84,160 +84,293 @@ def process_xml(input_xml, input_date):
 
     # get the day we are interested
     xpath = f'Days/Day/Date[text()[contains(.,"{input_date}")]]'
+
     date_elements: List[_Element]
+
     date_elements = input_root.xpath(xpath)  # type: ignore
-    if len(date_elements) != 1:
-        input(
-            "Error:\tCan't seem to find the date you are after."
-            " Check it appears in the XML, Press any key to exit."
-        )
-        exit()
-    else:
+
+    output_root = etree.fromstring("<root></root>")
+
+    if len(date_elements) > 0:
+
         day_element = date_elements[0].getparent()
-        # print(day_element[1].tag)
-    # build up output tree
-    output_root = Element("root")
 
-    # create a variable to store a reference to the heading as where
-    # a business item falls determins its style
-    last_gray_heading_text = ""
+        # build up output tree
+        output_root = Element("root")
 
-    # question placeholder added
-    questions_done = False
-    # weather or not the no debate and (Standing Order No 57)
-    presentation_of_bills_nodebate_so = False
+        # create a variable to store a reference to the heading as where
+        # a business item falls determins its style
+        last_gray_heading_text = ""
 
-    # get all the sections in this day
-    sections: List[_Element]
-    sections = day_element.xpath("./Sections/Section")  # type: ignore
+        # question placeholder added
+        questions_done = False
+        # weather or not the no debate and (Standing Order No 57)
+        presentation_of_bills_nodebate_so = False
 
-    # loop through all the sections
-    for section in sections:
+        # get all the sections in this day
+        sections: List[_Element]
+        sections = day_element.xpath("./Sections/Section")  # type: ignore
 
-        # get the section name from the XML
-        section_name = section.findtext("Name", default="")
-        # skip any sections that are not in the section names defined above
-        if section_name not in section_names:
-            continue
+        # loop through all the sections
+        for section in sections:
 
-        # stuff for the chamber section
-        if section_name == "Chamber":
-            # output root Add element for Business Today Chamber
-            SubElement(output_root, "OPHeading1").text = "Business Today: Chamber"
-
-            # default if there is no prayers in input XML
-            prayers_e = SubElement(output_root, "DebateTimingRubric")
-            prayers_e.text = "XX.XXam/pm Prayers"
-            SubElement(output_root, "DebateTimingRubric").text = "Followed by"
-
-            # section.find will return the first match which should be the prayers
-            dayItem_prayers = section.find("./DayItems/DayItem")
-            # fist check if the first element is Prayers
-            if (
-                dayItem_prayers is not None
-                and dayItem_prayers.find("Title").text.upper().strip() == "PRAYERS"
-            ):
-                prayer_time = dayItem_prayers.findtext("BusinessItemDetail/Time")
-                prayer_time = op_functions.format_time(prayer_time)
-
-                prayers_e.text = f"{prayer_time} Prayers"
-
-                # delete the day item
-                dayItem_prayers.getparent().remove(dayItem_prayers)
-
-        elif section_name == "Deferred Divisions":
-            # do special stuff for Deferred Divisions
-            SubElement(output_root, "OPHeading1").text = "Deferred Divisions"
-
-        elif section_name == "Westminster Hall":
-            SubElement(
-                output_root, "OPHeading1"
-            ).text = "Business Today: Westminster Hall"
-            # do special stuff for westminster hall
-
-        # get all the DayItem in the section
-        dayItem_all: List[_Element]
-        dayItem_all = section.xpath(".//DayItem")  # type: ignore
-
-        for dayItem in dayItem_all:
-            # get the day item type or None
-            day_item_type = dayItem.find("DayItemType")
-            # we need the day item type to not be None
-            # so if it in None we will just skip over
-            if day_item_type is None:
+            # get the section name from the XML
+            section_name = section.findtext("Name", default="")
+            # skip any sections that are not in the section names defined above
+            if section_name not in section_names:
                 continue
-            # check if this item is a child of another day item
-            if dayItem.getparent().tag == "ChildDayItems":
-                day_item_is_child = True
-            else:
-                day_item_is_child = False
-            # check if this item has children
-            if (
-                dayItem.find("BusinessItemDetail/ChildDayItems") is not None
-                and len(dayItem.find("BusinessItemDetail/ChildDayItems")) > 0
-            ):
-                has_children = True
-            else:
-                has_children = False
-            # find the title if it exists
-            title = dayItem.find("Title")
-            # get the title_text if it exists
-            day_item_title_text = dayItem.findtext("Title", default="")
 
-            # first test to see if the day item is a heading
-            if day_item_type.text == "SectionDayDivider":
-                # Set up the last gray heading variable.
-                # This is because elements take different styles based on wich section they are in
-                last_gray_heading_text = day_item_title_text.upper()
+            # stuff for the chamber section
+            if section_name == "Chamber":
+                # output root Add element for Business Today Chamber
+                SubElement(output_root, "OPHeading1").text = "Business Today: Chamber"
 
-                # now add any section day divider title to the XML for InDesign
-                SubElement(output_root, "OPHeading2").text = day_item_title_text
-                # also add any notes
-                if dayItem.find("Notes") is not None:
-                    SubElement(
-                        output_root, "DebateTimingRubric"
-                    ).text = dayItem.findtext("Notes", default="")
+                # default if there is no prayers in input XML
+                prayers_e = SubElement(output_root, "DebateTimingRubric")
+                prayers_e.text = "XX.XXam/pm Prayers"
+                SubElement(output_root, "DebateTimingRubric").text = "Followed by"
 
-                # if urgent questions and statements add time
+                # section.find will return the first match which should be the prayers
+                dayItem_prayers = section.find("./DayItems/DayItem")
+                # fist check if the first element is Prayers
                 if (
-                    title is not None
-                    and day_item_title_text.upper() == "URGENT QUESTIONS AND STATEMENTS"
+                    dayItem_prayers is not None
+                    and dayItem_prayers.find("Title").text.upper().strip() == "PRAYERS"
                 ):
-                    time_in_op_form = op_functions.format_time(
-                        dayItem.getnext().findtext(
-                            "BusinessItemDetail/Time", default=""
-                        )
-                    )
-                    if time_in_op_form is not None:
+                    prayer_time = dayItem_prayers.findtext("BusinessItemDetail/Time")
+                    prayer_time = op_functions.format_time(prayer_time)
+
+                    prayers_e.text = f"{prayer_time} Prayers"
+
+                    # delete the day item
+                    dayItem_prayers.getparent().remove(dayItem_prayers)
+
+            elif section_name == "Deferred Divisions":
+                # do special stuff for Deferred Divisions
+                SubElement(output_root, "OPHeading1").text = "Deferred Divisions"
+
+            elif section_name == "Westminster Hall":
+                SubElement(
+                    output_root, "OPHeading1"
+                ).text = "Business Today: Westminster Hall"
+                # do special stuff for westminster hall
+
+            # get all the DayItem in the section
+            dayItem_all: List[_Element]
+            dayItem_all = section.xpath(".//DayItem")  # type: ignore
+
+            for dayItem in dayItem_all:
+                # get the day item type or None
+                day_item_type = dayItem.find("DayItemType")
+                # we need the day item type to not be None
+                # so if it in None we will just skip over
+                if day_item_type is None:
+                    continue
+                # check if this item is a child of another day item
+                if dayItem.getparent().tag == "ChildDayItems":
+                    day_item_is_child = True
+                else:
+                    day_item_is_child = False
+                # check if this item has children
+                if (
+                    dayItem.find("BusinessItemDetail/ChildDayItems") is not None
+                    and len(dayItem.find("BusinessItemDetail/ChildDayItems")) > 0
+                ):
+                    has_children = True
+                else:
+                    has_children = False
+                # find the title if it exists
+                title = dayItem.find("Title")
+                # get the title_text if it exists
+                day_item_title_text = dayItem.findtext("Title", default="")
+
+                # first test to see if the day item is a heading
+                if day_item_type.text == "SectionDayDivider":
+                    # Set up the last gray heading variable.
+                    # This is because elements take different styles based on wich section they are in
+                    last_gray_heading_text = day_item_title_text.upper()
+
+                    # now add any section day divider title to the XML for InDesign
+                    SubElement(output_root, "OPHeading2").text = day_item_title_text
+                    # also add any notes
+                    if dayItem.find("Notes") is not None:
                         SubElement(
                             output_root, "DebateTimingRubric"
-                        ).text = time_in_op_form
+                        ).text = dayItem.findtext("Notes", default="")
 
-            # do things relating to the chamber section first
-            if section_name == "Chamber":
-                # if this is a business item
-                if day_item_type.text == "BusinessItem":
-                    # print(title_above_text(dayItem).upper())
-                    if last_gray_heading_text == "BUSINESS OF THE DAY":
-                        if day_item_is_child is False:
+                    # if urgent questions and statements add time
+                    if (
+                        title is not None
+                        and day_item_title_text.upper()
+                        == "URGENT QUESTIONS AND STATEMENTS"
+                    ):
+                        time_in_op_form = op_functions.format_time(
+                            dayItem.getnext().findtext(
+                                "BusinessItemDetail/Time", default=""
+                            )
+                        )
+                        if time_in_op_form is not None:
                             SubElement(
-                                output_root, "BusinessItemHeadingNumbered"
-                            ).text = day_item_title_text
+                                output_root, "DebateTimingRubric"
+                            ).text = time_in_op_form
+
+                # do things relating to the chamber section first
+                if section_name == "Chamber":
+                    # if this is a business item
+                    if day_item_type.text == "BusinessItem":
+                        # print(title_above_text(dayItem).upper())
+                        if last_gray_heading_text == "BUSINESS OF THE DAY":
+                            if day_item_is_child is False:
+                                SubElement(
+                                    output_root, "BusinessItemHeadingNumbered"
+                                ).text = day_item_title_text
+                            else:
+                                SubElement(
+                                    output_root, "Bulleted"
+                                ).text = day_item_title_text
+
+                            # next get timing and so reference
+                            op_functions.append_timing_so(output_root, dayItem)
+
+                            # get the sponsor info
+                            op_functions.append_motion_sponosrs(
+                                dayItem, output_root, laying_minister_lookup
+                            )
+
+                            # get the main item text
+                            motionText = Element("MotionText")
+                            motionText.append(
+                                op_functions.process_CDATA(
+                                    dayItem.findtext(
+                                        "BusinessItemDetail/ItemText", default=""
+                                    )
+                                )
+                            )
+                            output_root.append(motionText)
+
+                            # make sure we get any amendments
+                            op_functions.append_amendments(
+                                dayItem, output_root, laying_minister_lookup
+                            )
+                            # add Relevant Documents
+                            op_functions.notes_relevant_docs(
+                                dayItem, output_root, has_children, day_item_is_child
+                            )
+
+                        # if questions add a place holder xml element to add the xml from the question system
+                        elif last_gray_heading_text == "QUESTIONS":
+                            if questions_done is False:
+                                questions_element = Element("QUESTIONS")
+                                questions_element.tail = "\n"
+                                output_root.append(questions_element)
+                                questions_done = True
+                        elif last_gray_heading_text == "PRESENTATION OF BILLS":
+                            # only add the so and 'No debate (Standing Order No. 57)' once
+                            if presentation_of_bills_nodebate_so is False:
+                                op_functions.append_timing_so(output_root, dayItem)
+                                # check the above line to see if it is (Standing Order No. 57). if it is then add No debate before
+                                if (
+                                    output_root[-1].find("SOReference") is not None
+                                    and output_root[-1].find("SOReference").text
+                                    == "(Standing Order No. 57)"
+                                ):
+                                    output_root[-1].text = "No debate "
+                                    presentation_of_bills_nodebate_so = True
+                            if day_item_title_text.upper().strip() != "NO TITLE NEEDED":
+                                SubElement(
+                                    output_root, "BusinessItemHeadingBulleted"
+                                ).text = day_item_title_text
+
+                            # make sure we get announcement stuff
+                            businessItemType = dayItem.find(
+                                "BusinessItemDetail/BusinessItemType"
+                            )
+                            # get the sponsor info
+                            op_functions.append_motion_sponosrs(
+                                dayItem, output_root, laying_minister_lookup
+                            )
+                            if businessItemType is not None:
+                                motionText = Element("MotionText")
+                                motionText.append(
+                                    op_functions.process_CDATA(
+                                        dayItem.findtext(
+                                            "BusinessItemDetail/ItemText", default=""
+                                        )
+                                    )
+                                )
+                                output_root.append(motionText)
+                                # add notes
+                                # add Relevant Documents
+                                op_functions.notes_relevant_docs(
+                                    dayItem,
+                                    output_root,
+                                    has_children,
+                                    day_item_is_child,
+                                )
+
+                        elif (
+                            last_gray_heading_text == "ADJOURNMENT DEBATE"
+                            or last_gray_heading_text
+                            == "PRESENTATION OF PUBLIC PETITIONS"
+                        ):
+                            op_functions.append_timing_so(output_root, dayItem)
+                            # for public petitions add No debate of decision before SO 153.
+                            if (
+                                output_root[-1].find("SOReference") is not None
+                                and output_root[-1].find("SOReference").text
+                                == "(Standing Order No. 153)"
+                            ):
+                                output_root[-1].text = "No debate or decision "
+                            bus_list_item = SubElement(output_root, "BusinessListItem")
+                            bus_list_item.text = day_item_title_text + ": "
+
+                            # also need to append the sponsor
+                            op_functions.append_presenter_sponsor(
+                                dayItem, bus_list_item
+                            )
                         else:
-                            SubElement(
-                                output_root, "Bulleted"
-                            ).text = day_item_title_text
+                            if day_item_title_text.upper().strip() != "NO TITLE NEEDED":
+                                SubElement(
+                                    output_root, "BusinessItemHeadingBulleted"
+                                ).text = day_item_title_text
 
-                        # next get timing and so reference
-                        op_functions.append_timing_so(output_root, dayItem)
+                            op_functions.append_timing_so(output_root, dayItem)
+                            # make sure we get announcement stuff
+                            businessItemType = dayItem.find(
+                                "BusinessItemDetail/BusinessItemType"
+                            )
+                            # get the sponsor info
+                            op_functions.append_motion_sponosrs(
+                                dayItem, output_root, laying_minister_lookup
+                            )
+                            if businessItemType is not None:
+                                motionText = Element("MotionText")
+                                motionText.append(
+                                    op_functions.process_CDATA(
+                                        dayItem.findtext(
+                                            "BusinessItemDetail/ItemText", default=""
+                                        )
+                                    )
+                                )
+                                output_root.append(motionText)
+                                # add Relevant Documents
+                                op_functions.notes_relevant_docs(
+                                    dayItem,
+                                    output_root,
+                                    has_children,
+                                    day_item_is_child,
+                                )
 
-                        # get the sponsor info
+                elif section_name == "Deferred Divisions":
+                    if day_item_type.text == "BusinessItem":
+                        SubElement(
+                            output_root, "BusinessItemHeadingBulleted"
+                        ).text = day_item_title_text
+
                         op_functions.append_motion_sponosrs(
                             dayItem, output_root, laying_minister_lookup
                         )
-
-                        # get the main item text
-                        motionText = Element("MotionText")
+                        motionText = SubElement(output_root, "MotionText")
                         motionText.append(
                             op_functions.process_CDATA(
                                 dayItem.findtext(
@@ -245,192 +378,75 @@ def process_xml(input_xml, input_date):
                                 )
                             )
                         )
-                        output_root.append(motionText)
-
-                        # make sure we get any amendments
-                        op_functions.append_amendments(
-                            dayItem, output_root, laying_minister_lookup
-                        )
-                        # add Relevant Documents
                         op_functions.notes_relevant_docs(
                             dayItem, output_root, has_children, day_item_is_child
                         )
 
-                    # if questions add a place holder xml element to add the xml from the question system
-                    elif last_gray_heading_text == "QUESTIONS":
-                        if questions_done is False:
-                            questions_element = Element("QUESTIONS")
-                            questions_element.tail = "\n"
-                            output_root.append(questions_element)
-                            questions_done = True
-                    elif last_gray_heading_text == "PRESENTATION OF BILLS":
-                        # only add the so and 'No debate (Standing Order No. 57)' once
-                        if presentation_of_bills_nodebate_so is False:
-                            op_functions.append_timing_so(output_root, dayItem)
-                            # check the above line to see if it is (Standing Order No. 57). if it is then add No debate before
-                            if (
-                                output_root[-1].find("SOReference") is not None
-                                and output_root[-1].find("SOReference").text
-                                == "(Standing Order No. 57)"
-                            ):
-                                output_root[-1].text = "No debate "
-                                presentation_of_bills_nodebate_so = True
-                        if day_item_title_text.upper().strip() != "NO TITLE NEEDED":
-                            SubElement(
-                                output_root, "BusinessItemHeadingBulleted"
-                            ).text = day_item_title_text
+                # stuff for the westminster hall section
+                elif section_name == "Westminster Hall":
 
-                        # make sure we get announcement stuff
-                        businessItemType = dayItem.find(
-                            "BusinessItemDetail/BusinessItemType"
+                    if day_item_type.text == "BusinessItem":
+
+                        time_in_op_form = op_functions.format_time(
+                            dayItem.findtext("BusinessItemDetail/Time", default="")
                         )
-                        # get the sponsor info
-                        op_functions.append_motion_sponosrs(
-                            dayItem, output_root, laying_minister_lookup
-                        )
-                        if businessItemType is not None:
-                            motionText = Element("MotionText")
-                            motionText.append(
-                                op_functions.process_CDATA(
-                                    dayItem.findtext(
-                                        "BusinessItemDetail/ItemText", default=""
-                                    )
+                        if time_in_op_form is not None:
+                            SubElement(
+                                output_root, "DebateTimingRubric"
+                            ).text = time_in_op_form
+
+                        # Very annoyingly, some users put westminster hall items in as adjournment
+                        # debates while others put them in as motions. Further, when motions are
+                        # entered sometimes the title mathces the ItemText ane other times it doesnt.
+                        # when the westminster hall item is a motion use the motion text when it is
+                        # an adjournment debate use the title
+                        business_list_item = SubElement(output_root, "BusinessListItem")
+                        if (
+                            dayItem.findtext(
+                                "BusinessItemDetail/BusinessItemType", default=""
+                            )
+                            == "Motion"
+                        ):
+
+                            motion_text_cdata = op_functions.process_CDATA(
+                                dayItem.findtext(
+                                    "BusinessItemDetail/ItemText", default=""
                                 )
                             )
-                            output_root.append(motionText)
-                            # add notes
-                            # add Relevant Documents
-                            op_functions.notes_relevant_docs(
-                                dayItem, output_root, has_children, day_item_is_child
-                            )
-
-                    elif (
-                        last_gray_heading_text == "ADJOURNMENT DEBATE"
-                        or last_gray_heading_text == "PRESENTATION OF PUBLIC PETITIONS"
-                    ):
-                        op_functions.append_timing_so(output_root, dayItem)
-                        # for public petitions add No debate of decision before SO 153.
-                        if (
-                            output_root[-1].find("SOReference") is not None
-                            and output_root[-1].find("SOReference").text
-                            == "(Standing Order No. 153)"
-                        ):
-                            output_root[-1].text = "No debate or decision "
-                        bus_list_item = SubElement(output_root, "BusinessListItem")
-                        bus_list_item.text = day_item_title_text + ": "
+                            if motion_text_cdata.text:
+                                # use the motion text
+                                business_list_item.text = motion_text_cdata.text + ": "
+                            else:
+                                # use motion title
+                                business_list_item.text = day_item_title_text + ": "
+                        # else we probably have an announcement section
+                        else:
+                            business_list_item.text = day_item_title_text + ": "
 
                         # also need to append the sponsor
-                        op_functions.append_presenter_sponsor(dayItem, bus_list_item)
-                    else:
-                        if day_item_title_text.upper().strip() != "NO TITLE NEEDED":
-                            SubElement(
-                                output_root, "BusinessItemHeadingBulleted"
-                            ).text = day_item_title_text
-
-                        op_functions.append_timing_so(output_root, dayItem)
-                        # make sure we get announcement stuff
-                        businessItemType = dayItem.find(
-                            "BusinessItemDetail/BusinessItemType"
+                        op_functions.append_presenter_sponsor(
+                            dayItem, business_list_item
                         )
-                        # get the sponsor info
-                        op_functions.append_motion_sponosrs(
-                            dayItem, output_root, laying_minister_lookup
+
+                        # get relevant documents and notes
+                        op_functions.notes_relevant_docs(
+                            dayItem, output_root, has_children, day_item_is_child
                         )
-                        if businessItemType is not None:
-                            motionText = Element("MotionText")
-                            motionText.append(
-                                op_functions.process_CDATA(
-                                    dayItem.findtext(
-                                        "BusinessItemDetail/ItemText", default=""
-                                    )
-                                )
-                            )
-                            output_root.append(motionText)
-                            # add Relevant Documents
-                            op_functions.notes_relevant_docs(
-                                dayItem, output_root, has_children, day_item_is_child
-                            )
 
-            elif section_name == "Deferred Divisions":
-                if day_item_type.text == "BusinessItem":
-                    SubElement(
-                        output_root, "BusinessItemHeadingBulleted"
-                    ).text = day_item_title_text
+        # get the witten statements section
+        xpath = './Sections/Section[Name="Written Statements"]/DayItems/DayItem'
+        written_s_day_items = day_element.xpath(xpath)
 
-                    op_functions.append_motion_sponosrs(
-                        dayItem, output_root, laying_minister_lookup
-                    )
-                    motionText = SubElement(output_root, "MotionText")
-                    motionText.append(
-                        op_functions.process_CDATA(
-                            dayItem.findtext("BusinessItemDetail/ItemText", default="")
-                        )
-                    )
-                    op_functions.notes_relevant_docs(
-                        dayItem, output_root, has_children, day_item_is_child
-                    )
+        # get all written statement day items
+        if len(written_s_day_items) > 1:
+            # the first day item will be `STATEMENTS TO BE MADE TODAY` and we don't want that on its own.
+            sort_and_append_written_statemetns(written_s_day_items, output_root)
 
-            # stuff for the westminster hall section
-            elif section_name == "Westminster Hall":
-
-                if day_item_type.text == "BusinessItem":
-
-                    time_in_op_form = op_functions.format_time(
-                        dayItem.findtext("BusinessItemDetail/Time", default="")
-                    )
-                    if time_in_op_form is not None:
-                        SubElement(
-                            output_root, "DebateTimingRubric"
-                        ).text = time_in_op_form
-
-                    # Very annoyingly, some users put westminster hall items in as adjournment
-                    # debates while others put them in as motions. Further, when motions are
-                    # entered sometimes the title mathces the ItemText ane other times it doesnt.
-                    # when the westminster hall item is a motion use the motion text when it is
-                    # an adjournment debate use the title
-                    business_list_item = SubElement(output_root, "BusinessListItem")
-                    if (
-                        dayItem.findtext(
-                            "BusinessItemDetail/BusinessItemType", default=""
-                        )
-                        == "Motion"
-                    ):
-
-                        motion_text_cdata = op_functions.process_CDATA(
-                            dayItem.findtext("BusinessItemDetail/ItemText", default="")
-                        )
-                        if motion_text_cdata.text:
-                            # use the motion text
-                            business_list_item.text = motion_text_cdata.text + ": "
-                        else:
-                            # use motion title
-                            business_list_item.text = day_item_title_text + ": "
-                    # else we probably have an announcement section
-                    else:
-                        business_list_item.text = day_item_title_text + ": "
-
-                    # also need to append the sponsor
-                    op_functions.append_presenter_sponsor(dayItem, business_list_item)
-
-                    # get relevant documents and notes
-                    op_functions.notes_relevant_docs(
-                        dayItem, output_root, has_children, day_item_is_child
-                    )
-
-    # get the witten statements section
-    xpath = './Sections/Section[Name="Written Statements"]/DayItems/DayItem'
-    written_s_day_items = day_element.xpath(xpath)
-
-    # get all written statement day items
-    if len(written_s_day_items) > 1:
-        # the first day item will be `STATEMENTS TO BE MADE TODAY` and we don't want that on its own.
-        sort_and_append_written_statemetns(written_s_day_items, output_root)
-
-    # loop through output
-    # replace any non breaking spaces with ordinary spaces
-    # replace single quotes with double quotes
-    op_functions.clean_up_text(output_root)
-    # op_functions.
+        # loop through output
+        # replace any non breaking spaces with ordinary spaces
+        # replace single quotes with double quotes
+        op_functions.clean_up_text(output_root)
+        # op_functions.
 
     # get the path to input file
     pwd = path.dirname(path.abspath(input_xml))

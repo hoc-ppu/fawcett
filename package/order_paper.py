@@ -41,8 +41,6 @@ QUESTIONS_ENDPOINT_STEM = "https://api.eqm.parliament.uk/" "feed/Xml/OrderPaper.
 # Path to Temp folder in user's home folder
 # TEMP_DIR_PATH = str(Path(Path.home(), 'AppData/Local/Temp/').absolute())
 TEMP_DIR_PATH = Path(mkdtemp())
-print(TEMP_DIR_PATH)
-
 
 # Cache XML in Temp folder
 TEMP_FILE_PATH_BUSINESS = TEMP_DIR_PATH.joinpath("business_temp.xml")
@@ -189,9 +187,6 @@ def generate_html_element(node) -> str:
     return html
 
 
-# Generate HTML fragment from XML
-
-
 def generate_html(requested_date) -> str:
 
     html_fragment = ""
@@ -248,9 +243,6 @@ def rename_xml_file(source_file_name_suffix) -> None:
     # os.rename(path.abspath(source_file_path +
     #           source_file_name_suffix), TEMP_FILE_PATH_BUSINESS)
     source_file_path.rename(TEMP_FILE_PATH_BUSINESS)
-
-
-# The nuts and bolts of the Order Paper production
 
 
 def order_paper(requested_date, shopping_list) -> None:
@@ -347,8 +339,6 @@ def order_paper(requested_date, shopping_list) -> None:
     # Create/write HTML file
     with open(OUTPUT_FILE_PATH, "w", encoding="utf-8") as output_file:
         output_file.write(output_html)
-
-    print(f"{OUTPUT_FILE_PATH=}")
 
     # Open HTML in new browser tab
     # webbrowser.get().open(str(OUTPUT_FILE_PATH), new=2)
