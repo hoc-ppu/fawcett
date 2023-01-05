@@ -232,9 +232,7 @@ def run(chosen_date: date, word=False):
     logger.info(f"{word=}")
 
     if not isinstance(chosen_date, date):
-        logger.warning(
-            f"{chosen_date}  seems  not to be a valid date. Please try again."
-        )
+        error(f"{chosen_date}  seems  not to be a valid date. Please try again.")
         return
 
     # testing
@@ -243,13 +241,17 @@ def run(chosen_date: date, word=False):
     eqm_data = json_from_uri(NOQ_URI_BASE + chosen_date.strftime("%Y-%m-%d"))
 
     if not eqm_data:
-        logger.warning("Error getting data from EQM")
+        error(
+            "Error getting data from EQM."
+            "\nCheck that you are connected to the parliament network "
+            "and that the date is a sitting date."
+        )
         return
 
     mnis_data = json_from_uri(MNIS_ANSWERING_BODIES_URI)
 
     if not mnis_data:
-        logger.warning("Error getting data from MNIS")
+        warning("Error getting data from MNIS")
         return
 
     html_template = buildUpHTML(eqm_data, mnis_data, chosen_date)
